@@ -241,7 +241,7 @@ done
 
 __Remove duplicate positions.__
 
-Due to the way the 1000 Genomes Projects encodes different variant types there are duplicated positions that need to be removed.
+Due to the way the 1000 Genomes Projects encodes different variant types there are duplicated positions that need to be removed. Note that to replicate you will need to first decompress the `../meta_data/tgp_snp_dups` directory as GitHub only allows 100 Mb of storage.
 
 ```bash 
 # Filter out duplicate records.
