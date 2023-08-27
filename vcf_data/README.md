@@ -1,4 +1,4 @@
-# Data Generation
+# `vcf_data`
 
 This directory contains the code to replicate the VCF data generation used in this study.
 
@@ -8,7 +8,7 @@ All packages are publicly available and their documentation can be viewed at the
 
 - [`BCFtoools v1.13`](https://samtools.github.io/bcftools/bcftools.html)
 - [`Tabix v0.2.6`](http://www.htslib.org/doc/tabix.html)
-- [`scikit-allel v1.3.3`](https://scikit-allel.readthedocs.io/en/stable/index.html)
+- [`scikit-allel v1.3.5`](https://scikit-allel.readthedocs.io/en/stable/index.html)
 
 ## Data
 
@@ -22,7 +22,9 @@ All data is publicly available and can be downloaded from the following location
 - [Simons Genome Diversity Project Phased Dataset](https://sharehost.hms.harvard.edu/genetics/reich_lab/sgdp/phased_data2021/)
 - [Phase 3 Release of the 1000 Genomes Project](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/)
 
-## Archaic Dataset
+## Code
+
+### Archaic Dataset
 
 __Merge the unfiltered data.__
 
@@ -84,7 +86,7 @@ tabix -p vcf all_archaics_merged_filtered_variable_sites_aa_calls_chr${CHR}.vcf.
 done
 ```
 
-__Encode the filtered variable sites VCF files as `zarr` arrays to minimize file storage .__
+__Encode the filtered variable sites VCF files as `zarr` arrays to minimize file storage.__
 
 ```bash
 # Convert the VCF files to zarr arrays.
@@ -93,7 +95,7 @@ python vcf_to_zarr.py all_archaics_merged_filtered_variable_sites_aa_calls_chr${
 done
 ```
 
-## Simons Genome Diversity Project + Archaic Dataset
+### Simons Genome Diversity Project + Archaic Dataset
 
 __Merge the unfiltered data.__
 
@@ -156,7 +158,7 @@ tabix -p vcf sgdp_all_archaics_merged_filtered_variable_sites_aa_calls_chr${CHR}
 done
 ```
 
-__Encode the filtered variable sites VCF files as `zarr` arrays to minimize file storage .__
+__Encode the filtered variable sites VCF files as `zarr` arrays to minimize file storage.__
 
 ```bash
 # Convert the VCF files to zarr arrays.
@@ -165,7 +167,7 @@ python vcf_to_zarr.py sgdp_all_archaics_merged_filtered_variable_sites_aa_calls_
 done
 ```
 
-## 1000 Genomes Project + Archaic Dataset
+### 1000 Genomes Project + Archaic Dataset
 
 __Merge the unfiltered data.__
 
@@ -237,7 +239,7 @@ bcftools view -S ../meta_data/tgp_mod_arc_anc_samps.txt -Oz -o tgp_mod_all_archa
 done
 ```
 
-__Remove duplicate positions. __
+__Remove duplicate positions.__
 
 Due to the way the 1000 Genomes Projects encodes different variant types there are duplicated positions that need to be removed.
 
@@ -248,7 +250,7 @@ bcftools view -T ^../meta_data/tgp_snp_dups/tgp_dup_snps_chr${CHR}.txt -Oz -o tg
 done
 ```
 
-__Exclude duplicated positions from the all sites report. __
+__Exclude duplicated positions from the all sites report.__
 
 ```bash
 # Remove duplicated records from the all sites report.
@@ -266,7 +268,7 @@ tabix -p vcf tgp_mod_all_archaics_merged_filtered_variable_sites_dedupped_aa_cal
 done
 ```
 
-__Encode the filtered variable sites VCF files as `zarr` arrays to minimize file storage .__
+__Encode the filtered variable sites VCF files as `zarr` arrays to minimize file storage.__
 
 ```bash
 # Convert the VCF files to zarr arrays.
