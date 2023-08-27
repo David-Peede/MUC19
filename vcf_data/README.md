@@ -1,6 +1,6 @@
 # `vcf_data`
 
-This directory contains the code to replicate the VCF data generation used in this study.
+This directory contains the code to replicate the VCF data used in this study.
 
 ## Packages
 
