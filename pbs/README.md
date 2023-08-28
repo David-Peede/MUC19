@@ -21,6 +21,17 @@ python mxl_pbs_chromosome.py ${CHR}
 done
 ```
 
+__Compute the windowed average PBS value.__
+
+```bash
+# Compute PBS (MXL:CHB:CEU) in non-overlapping windows.
+for CHR in {1..22}; do
+python mxl_pbs_windows.py ${CHR} 748
+done
+```
+
+
+
 __Compute PBS for Denisovan-specific sites.__
 
 ```bash
