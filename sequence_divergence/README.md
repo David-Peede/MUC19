@@ -43,9 +43,9 @@ __Compute sequence divergence between haplotypes in the 1000 Genomes Project and
 
 ```bash
 # Compute sequence divergence between modern haplotypes and archaic diplotypes in non-overlapping windows.
-for CHR in {1..22}; do for WIND in 72 748; do
-python tgp_haplotype_arc_diplotype_sequence_divergence_windows.py ${CHR} ${WIND}
-done; done
+for CHR in {1..22}; do
+python tgp_haplotype_arc_diplotype_sequence_divergence_windows.py ${CHR} 748
+done
 ```
 
 __Compute the number of ((African, Altai Neanderthal), Denisovan) shared divergent sites.__
