@@ -582,7 +582,7 @@ def load_tgp_arc_snp_density_windows(window_size=72):
     return snp_dicc
 
 # Define a function to compile the archaic snp denisty results.
-def compile_tgp_arc_snp_denisty_summary(gt, window_size=72):
+def compile_tgp_arc_snp_denisty_summary(gt, window_size=72, export=True):
     # Intialize a dictionary to store the results.
     df_dicc = {
         'arc': [], 'type': [],
@@ -634,10 +634,14 @@ def compile_tgp_arc_snp_denisty_summary(gt, window_size=72):
             'wind_p': r'$P-value$',
         }, inplace=True,
     )
+    # If export is true...
+    if export:
+        # Export the dataframe as a csv.
+        snp_df.to_csv(f'./dataframes/tgp_archaic_snp_denisty_{window_size}kb.csv', index=False)
     return snp_df
 
 # Define a function to plot archaic snp density.
-def plot_tgp_arc_snp_denisty_summary(gt, arc, obs_label, window_size=72):
+def plot_tgp_arc_snp_denisty_summary(gt, arc, obs_label, window_size=72, export=True):
     # Load the observed, nonoverlapping windows, and window indicies of,
     # comparable effective sequence length.
     muc19_dicc = tgp_arc_snp_denisty(gt=gt)
@@ -708,6 +712,13 @@ def plot_tgp_arc_snp_denisty_summary(gt, arc, obs_label, window_size=72):
     axes[0].set_ylabel('Frequency')
     axes[0].set_xlabel(f'Derived {label_dicc[arc]}-Specifc Sites in {window_size}kb Windows')
     axes[1].set_xlabel(f'Ancestral {label_dicc[arc]}-Specifc Sites in {window_size}kb Windows')
+    # If export is set to true...
+    if export:
+        # Export the plot.
+        plt.savefig(
+            f'./supp_figures/tgp_{arc.lower()}_snp_denisty_{window_size}kb.png', format='png',
+            facecolor='white', bbox_inches='tight', dpi=500,
+        )
     # Show the plot!
     plt.show()
     return
@@ -719,7 +730,7 @@ def sequence_divergence(px, py):
     return seq_div
 
 # Define a function to calculate sequence divergence between archaic diplotypes and tgp haplotypes.
-def tgp_haplotype_distances(p_gt, window_size=72):
+def tgp_haplotype_distances(p_gt, window_size=72, export=True):
     # Load the meta data.
     meta_df = pd.read_csv(
         '../meta_data/tgp_mod.txt', sep='\t',
@@ -749,19 +760,19 @@ def tgp_haplotype_distances(p_gt, window_size=72):
         'Sample': meta_df['IND'].values,
         'Population': meta_df['POP'].values,
         'Super Population': meta_df['SUPERPOP'].values,
-        'Hap. 1 (DEN)': [], 'Hap. 2 (DEN)': [],
-        'Hap. 1 (ALT)': [], 'Hap. 2 (ALT)': [],
-        'Hap. 1 (CHA)': [], 'Hap. 2 (CHA)': [],
-        'Hap. 1 (VIN)': [], 'Hap. 2 (VIN)': [],
+        'Chr. 1 (DEN)': [], 'Chr. 2 (DEN)': [],
+        'Chr. 1 (ALT)': [], 'Chr. 2 (ALT)': [],
+        'Chr. 1 (CHA)': [], 'Chr. 2 (CHA)': [],
+        'Chr. 1 (VIN)': [], 'Chr. 2 (VIN)': [],
     }
     norm_dicc = {
         'Sample': meta_df['IND'].values,
         'Population': meta_df['POP'].values,
         'Super Population': meta_df['SUPERPOP'].values,
-        'Hap. 1 (DEN)': [], 'Hap. 2 (DEN)': [],
-        'Hap. 1 (ALT)': [], 'Hap. 2 (ALT)': [],
-        'Hap. 1 (CHA)': [], 'Hap. 2 (CHA)': [],
-        'Hap. 1 (VIN)': [], 'Hap. 2 (VIN)': [],
+        'Chr. 1 (DEN)': [], 'Chr. 2 (DEN)': [],
+        'Chr. 1 (ALT)': [], 'Chr. 2 (ALT)': [],
+        'Chr. 1 (CHA)': [], 'Chr. 2 (CHA)': [],
+        'Chr. 1 (VIN)': [], 'Chr. 2 (VIN)': [],
     }
     # Extract haplotype arrays.
     tgp_hap_1 = p_gt[:, :-4, 0]
@@ -782,13 +793,17 @@ def tgp_haplotype_distances(p_gt, window_size=72):
             # Update dictionaries.
             dist_dicc[arc]['hap_1'] = np.append(dist_dicc[arc]['hap_1'], dist_1)
             dist_dicc[arc]['hap_2'] = np.append(dist_dicc[arc]['hap_2'], dist_2)
-            abs_dicc['Hap. 1 ({0})'.format(arc)].append(dist_1)
-            abs_dicc['Hap. 2 ({0})'.format(arc)].append(dist_2)
-            norm_dicc['Hap. 1 ({0})'.format(arc)].append(dist_1/n_sites)
-            norm_dicc['Hap. 2 ({0})'.format(arc)].append(dist_2/n_sites)
+            abs_dicc['Chr. 1 ({0})'.format(arc)].append(dist_1)
+            abs_dicc['Chr. 2 ({0})'.format(arc)].append(dist_2)
+            norm_dicc['Chr. 1 ({0})'.format(arc)].append(dist_1/n_sites)
+            norm_dicc['Chr. 2 ({0})'.format(arc)].append(dist_2/n_sites)
     # Intailize the dataframes.
     abs_df = pd.DataFrame(data=abs_dicc)
     norm_df = pd.DataFrame(data=norm_dicc)
+    # If export is true...
+    if export:
+        # Export the dataframe as a csv.
+        norm_df.to_csv(f'./dataframes/tgp_arc_hap_seq_div_summary_{window_size}kb.csv', index=False)
     return abs_df, norm_df, dist_dicc
 
 # Define a function to calculate sequence divergence between archaic diplotypes and papuan haplotypes.
@@ -822,19 +837,19 @@ def pap_haplotype_distances(p_gt, window_size=72):
         'Sample': meta_df['IND'].values,
         'Population': meta_df['POP'].values,
         'Super Population': meta_df['SUPERPOP'].values,
-        'Hap. 1 (DEN)': [], 'Hap. 2 (DEN)': [],
-        'Hap. 1 (ALT)': [], 'Hap. 2 (ALT)': [],
-        'Hap. 1 (CHA)': [], 'Hap. 2 (CHA)': [],
-        'Hap. 1 (VIN)': [], 'Hap. 2 (VIN)': [],
+        'Chr. 1 (DEN)': [], 'Chr. 2 (DEN)': [],
+        'Chr. 1 (ALT)': [], 'Chr. 2 (ALT)': [],
+        'Chr. 1 (CHA)': [], 'Chr. 2 (CHA)': [],
+        'Chr. 1 (VIN)': [], 'Chr. 2 (VIN)': [],
     }
     norm_dicc = {
         'Sample': meta_df['IND'].values,
         'Population': meta_df['POP'].values,
         'Super Population': meta_df['SUPERPOP'].values,
-        'Hap. 1 (DEN)': [], 'Hap. 2 (DEN)': [],
-        'Hap. 1 (ALT)': [], 'Hap. 2 (ALT)': [],
-        'Hap. 1 (CHA)': [], 'Hap. 2 (CHA)': [],
-        'Hap. 1 (VIN)': [], 'Hap. 2 (VIN)': [],
+        'Chr. 1 (DEN)': [], 'Chr. 2 (DEN)': [],
+        'Chr. 1 (ALT)': [], 'Chr. 2 (ALT)': [],
+        'Chr. 1 (CHA)': [], 'Chr. 2 (CHA)': [],
+        'Chr. 1 (VIN)': [], 'Chr. 2 (VIN)': [],
     }
     # Extract haplotype arrays.
     pap_hap_1 = p_gt[:, :-4, 0]
@@ -855,10 +870,10 @@ def pap_haplotype_distances(p_gt, window_size=72):
             # Update dictionaries.
             dist_dicc[arc]['hap_1'] = np.append(dist_dicc[arc]['hap_1'], dist_1)
             dist_dicc[arc]['hap_2'] = np.append(dist_dicc[arc]['hap_2'], dist_2)
-            abs_dicc['Hap. 1 ({0})'.format(arc)].append(dist_1)
-            abs_dicc['Hap. 2 ({0})'.format(arc)].append(dist_2)
-            norm_dicc['Hap. 1 ({0})'.format(arc)].append(dist_1/n_sites)
-            norm_dicc['Hap. 2 ({0})'.format(arc)].append(dist_2/n_sites)
+            abs_dicc['Chr. 1 ({0})'.format(arc)].append(dist_1)
+            abs_dicc['Chr. 2 ({0})'.format(arc)].append(dist_2)
+            norm_dicc['Chr. 1 ({0})'.format(arc)].append(dist_1/n_sites)
+            norm_dicc['Chr. 2 ({0})'.format(arc)].append(dist_2/n_sites)
     # Intailize the dataframes.
     abs_df = pd.DataFrame(data=abs_dicc)
     norm_df = pd.DataFrame(data=norm_dicc)
@@ -969,7 +984,7 @@ def pap_plot_s_curves(hap_dist_dicc, window_size=72):
     return
 
 # Define a function to plot haplotype distances focusing on the denisovan.
-def plot_den_hap_dist_summary(dist_df, window_size=72):
+def plot_den_hap_dist_summary(dist_df, window_size=72, export=True):
     # Intialize figures and axes.
     fig, axes = plt.subplots(
          4, 5, figsize=(12, 9),
@@ -983,24 +998,24 @@ def plot_den_hap_dist_summary(dist_df, window_size=72):
         0, 1, 2, 3, 4,
     ]
     # Determine the max and min distance from the Denisovan.
-    max_dist = dist_df[['Hap. 1 (DEN)', 'Hap. 2 (DEN)']].max().max()
-    min_dist = dist_df[['Hap. 1 (DEN)', 'Hap. 2 (DEN)']].min().min()
+    max_dist = dist_df[['Chr. 1 (DEN)', 'Chr. 2 (DEN)']].max().max()
+    min_dist = dist_df[['Chr. 1 (DEN)', 'Chr. 2 (DEN)']].min().min()
     # For every super population...
     for idx in range(len(s_pop_list)):
         # Extract the super population.
         s_pop = s_pop_list[idx]
         # Extract the haplotype distances for the Denisovan and Neanderthals.
-        den_1 = dist_df[dist_df['Super Population'].isin([s_pop])]['Hap. 1 (DEN)'].values
-        den_2 = dist_df[dist_df['Super Population'].isin([s_pop])]['Hap. 2 (DEN)'].values
+        den_1 = dist_df[dist_df['Super Population'].isin([s_pop])]['Chr. 1 (DEN)'].values
+        den_2 = dist_df[dist_df['Super Population'].isin([s_pop])]['Chr. 2 (DEN)'].values
         den_dists = np.concatenate((den_1, den_2))
-        alt_1 = dist_df[dist_df['Super Population'].isin([s_pop])]['Hap. 1 (ALT)'].values
-        alt_2 = dist_df[dist_df['Super Population'].isin([s_pop])]['Hap. 2 (ALT)'].values
+        alt_1 = dist_df[dist_df['Super Population'].isin([s_pop])]['Chr. 1 (ALT)'].values
+        alt_2 = dist_df[dist_df['Super Population'].isin([s_pop])]['Chr. 2 (ALT)'].values
         alt_dists = np.concatenate((alt_1, alt_2))
-        cha_1 = dist_df[dist_df['Super Population'].isin([s_pop])]['Hap. 1 (CHA)'].values
-        cha_2 = dist_df[dist_df['Super Population'].isin([s_pop])]['Hap. 2 (CHA)'].values
+        cha_1 = dist_df[dist_df['Super Population'].isin([s_pop])]['Chr. 1 (CHA)'].values
+        cha_2 = dist_df[dist_df['Super Population'].isin([s_pop])]['Chr. 2 (CHA)'].values
         cha_dists = np.concatenate((cha_1, cha_2))
-        vin_1 = dist_df[dist_df['Super Population'].isin([s_pop])]['Hap. 1 (VIN)'].values
-        vin_2 = dist_df[dist_df['Super Population'].isin([s_pop])]['Hap. 2 (VIN)'].values
+        vin_1 = dist_df[dist_df['Super Population'].isin([s_pop])]['Chr. 1 (VIN)'].values
+        vin_2 = dist_df[dist_df['Super Population'].isin([s_pop])]['Chr. 2 (VIN)'].values
         vin_dists = np.concatenate((vin_1, vin_2))
         # Plot the haplotype distribution.
         axes[0, cols[idx]].hist(
@@ -1038,6 +1053,13 @@ def plot_den_hap_dist_summary(dist_df, window_size=72):
     axes[1, 0].set_ylabel('Sequence Divergence'+'\n'+'from the Altai Nean.')
     axes[2, 0].set_ylabel('Sequence Divergence'+'\n'+'from the Chagyrskaya Nean.')
     axes[3, 0].set_ylabel('Sequence Divergence'+'\n'+'from the Vindija Nean.')
+    # If export is set to true...
+    if export:
+        # Export the plot.
+        plt.savefig(
+            f'./supp_figures/tgp_arc_hap_dist_summary_{window_size}kb.png', format='png',
+            facecolor='white', bbox_inches='tight', dpi=500,
+        )
     # Show the plot.
     plt.show()
     return
@@ -1184,360 +1206,6 @@ def pap_hap_freq_summary(dist_dicc, arc, threshold, window_size=72):
     hap_pop_summary_df = pd.DataFrame(data=hap_pop_dicc)
     return hap_pop_summary_df
 
-# Define a function to compute sequence divergence between haplotype groups.
-def hap_mat_diffs(hap_mat_x, hap_mat_y):
-    # Extract the derived allele frequency arrays.
-    px = hap_mat_x.sum(axis=1) / hap_mat_x.shape[1]
-    # If the y group is an archaic...
-    if hap_mat_y.ndim == 1:
-        py = hap_mat_y
-    # Else...
-    else:
-        py = hap_mat_y.sum(axis=1) / hap_mat_y.shape[1]
-    # Compute the number of pairwise differences. 
-    pw_diffs = np.nansum(((px * (1 - py)) + (py * (1 - px))))
-    return pw_diffs
-
-# Define a function to compute haplo-group pairwise differences.
-def tgp_haplo_group_pwd_div(p_gt, window_size=72):
-    # Intialize a dictionary of haplo-groups.
-    haplo_groups = {
-        'ARC': {
-            'hap_1': np.loadtxt(f'../meta_data/{window_size}kb_arc_like_hap_1_idx.csv', delimiter=',', dtype=int),
-            'hap_2': np.loadtxt(f'../meta_data/{window_size}kb_arc_like_hap_2_idx.csv', delimiter=',', dtype=int),
-        },
-        'HUM': {
-            'hap_1': np.loadtxt(f'../meta_data/{window_size}kb_hum_like_hap_1_idx.csv', delimiter=',', dtype=int),
-            'hap_2': np.loadtxt(f'../meta_data/{window_size}kb_hum_like_hap_2_idx.csv', delimiter=',', dtype=int),
-        },
-        'REC': {
-            'hap_1': np.loadtxt('../meta_data/72kb_rec_like_hap_1_idx.csv', delimiter=',', dtype=int),
-            'hap_2': [np.loadtxt('../meta_data/72kb_rec_like_hap_2_idx.csv', delimiter=',', dtype=int)],
-        },
-    }
-    # Load the effective sequence length matrix.
-    esl_mat = load_hap_esl_mat(prefix='arc_and_tgp', window_size=window_size)
-    # Intialize archaic information dictionaries.
-    esl_dicc = {
-        'DEN': esl_mat[1, 3], 'ALT': esl_mat[1, 0],
-        'CHA': esl_mat[1, 1], 'VIN': esl_mat[1, 2],
-        'TGP': esl_mat[1, -1],
-    }
-    esl_idx_dicc = {
-        0: esl_dicc['DEN'], 1: esl_dicc['ALT'], 2: esl_dicc['CHA'], 3: esl_dicc['VIN'],
-        4: esl_dicc['DEN'], 5: esl_dicc['ALT'], 6: esl_dicc['CHA'], 7: esl_dicc['VIN'],
-        8: esl_dicc['DEN'], 9: esl_dicc['ALT'], 10: esl_dicc['CHA'], 11: esl_dicc['VIN'],
-        12: esl_dicc['TGP'], 13: esl_dicc['TGP'], 14: esl_dicc['TGP'],
-        15: esl_dicc['TGP'], 16: esl_dicc['TGP'], 17: esl_dicc['TGP'],
-    }
-    # Extract the denisovan-like haplotypes.
-    arc_hap_mat = np.concatenate((
-        p_gt[:, haplo_groups['ARC']['hap_1'], 0],
-        p_gt[:, haplo_groups['ARC']['hap_2'], 1],
-    ), axis=1)
-    # Extract the human-like haplotypes.
-    hum_hap_mat = np.concatenate((
-        p_gt[:, haplo_groups['HUM']['hap_1'], 0],
-        p_gt[:, haplo_groups['HUM']['hap_2'], 1],
-    ), axis=1)
-    # Extract the recombinant haplotypes.
-    rec_hap_mat = np.concatenate((
-        p_gt[:, haplo_groups['REC']['hap_1'], 0],
-        p_gt[:, haplo_groups['REC']['hap_2'], 1],
-    ), axis=1)
-    # Create a dictionary of haplotype matricies.
-    hap_mat_dicc = {
-        'ARC': arc_hap_mat,
-        'HUM': hum_hap_mat,
-        'REC': rec_hap_mat,
-    }
-    # Intialize archaic diplotype dictionary.
-    arc_dip_dicc = {
-        'DEN': calc_arc_alt_freqs(p_gt.take([2350], axis=1)),
-        'ALT': calc_arc_alt_freqs(p_gt.take([2347], axis=1)),
-        'CHA': calc_arc_alt_freqs(p_gt.take([2348], axis=1)),
-        'VIN': calc_arc_alt_freqs(p_gt.take([2349], axis=1)),
-    }
-    # Intialize a list to store the results.
-    diff_list = []
-    # For every haplotype group...
-    for hap in hap_mat_dicc.keys():
-        # For every archaic...
-        for arc in arc_dip_dicc.keys():
-            # Compute the number of pairwise differences.
-            diff_list.append(hap_mat_diffs(hap_mat_dicc[hap], arc_dip_dicc[arc]))
-    # Intialize an ordered list of pairwise comparisons.
-    combos = [
-        ('ARC', 'HUM'),
-        ('ARC', 'REC'),
-        ('HUM', 'REC'),
-        ('ARC', 'ARC'),
-        ('HUM', 'HUM'),
-        ('REC', 'REC'),
-    ]
-    # For every combination...
-    for combo in combos:
-        # Extract the haplotype groups.
-        key_1, key_2 = combo
-        # Compute the number of pairwise differences.
-        diff_list.append(hap_mat_diffs(hap_mat_dicc[key_1], hap_mat_dicc[key_2]))
-    # Intialize a list to store the sequence diverence results.
-    seq_div_list = []
-    # For all pairwise comparisons...
-    for i in range(18):
-        # Extract the comparison and then effective sequence length.
-        pwd = diff_list[i]
-        esl = esl_idx_dicc[i]
-        # Append the results.
-        seq_div_list.append(pwd / esl)
-    # Intilaize a results dictionary.
-    pwd_dicc = {
-        'ABS': np.array(diff_list),
-        'NORM': np.array(seq_div_list),
-    }
-    return pwd_dicc
-
-# Define a function to compute haplo-group pairwise differences.
-def tgp_haplo_group_pwd_div_muc19(p_gt, window_size=72):
-    # Intialize a dictionary of haplo-groups.
-    haplo_groups = {
-        'ARC': {
-            'hap_1': np.loadtxt(f'../meta_data/{window_size}kb_arc_like_hap_1_idx.csv', delimiter=',', dtype=int),
-            'hap_2': np.loadtxt(f'../meta_data/{window_size}kb_arc_like_hap_2_idx.csv', delimiter=',', dtype=int),
-        },
-        'HUM': {
-            'hap_1': np.loadtxt(f'../meta_data/{window_size}kb_hum_like_hap_1_idx.csv', delimiter=',', dtype=int),
-            'hap_2': np.loadtxt(f'../meta_data/{window_size}kb_hum_like_hap_2_idx.csv', delimiter=',', dtype=int),
-        },
-        'REC': {
-            'hap_1': np.loadtxt('../meta_data/72kb_rec_like_hap_1_idx.csv', delimiter=',', dtype=int),
-            'hap_2': [np.loadtxt('../meta_data/72kb_rec_like_hap_2_idx.csv', delimiter=',', dtype=int)],
-        },
-    }
-    # Load the effective sequence length matrix.
-    esl_mat = load_hap_esl_mat(prefix='arc_and_tgp', window_size=window_size)
-    # Intialize archaic information dictionaries.
-    esl_dicc = {
-        'DEN': esl_mat[1, 3], 'ALT': esl_mat[1, 0],
-        'CHA': esl_mat[1, 1], 'VIN': esl_mat[1, 2],
-        'TGP': esl_mat[1, -1],
-    }
-    esl_idx_dicc = {
-        0: esl_dicc['DEN'], 1: esl_dicc['ALT'], 2: esl_dicc['CHA'], 3: esl_dicc['VIN'],
-        4: esl_dicc['DEN'], 5: esl_dicc['ALT'], 6: esl_dicc['CHA'], 7: esl_dicc['VIN'],
-        8: esl_dicc['DEN'], 9: esl_dicc['ALT'], 10: esl_dicc['CHA'], 11: esl_dicc['VIN'],
-        12: esl_dicc['TGP'], 13: esl_dicc['TGP'], 14: esl_dicc['TGP'],
-        15: esl_dicc['TGP'], 16: esl_dicc['TGP'], 17: esl_dicc['TGP'],
-    }
-    # Extract the denisovan-like haplotypes.
-    arc_hap_mat = np.concatenate((
-        p_gt[:, haplo_groups['ARC']['hap_1'], 0],
-        p_gt[:, haplo_groups['ARC']['hap_2'], 1],
-    ), axis=1)
-    # Extract the human-like haplotypes.
-    hum_hap_mat = np.concatenate((
-        p_gt[:, haplo_groups['HUM']['hap_1'], 0],
-        p_gt[:, haplo_groups['HUM']['hap_2'], 1],
-    ), axis=1)
-    # Extract the recombinant haplotypes.
-    rec_hap_mat = np.concatenate((
-        p_gt[:, haplo_groups['REC']['hap_1'], 0],
-        p_gt[:, haplo_groups['REC']['hap_2'], 1],
-    ), axis=1)
-    # Create a dictionary of haplotype matricies.
-    hap_mat_dicc = {
-        'ARC': arc_hap_mat,
-        'HUM': hum_hap_mat,
-        'REC': rec_hap_mat,
-    }
-    # Intialize archaic diplotype dictionary.
-    arc_dip_dicc = {
-        'DEN': calc_arc_alt_freqs(p_gt.take([2350], axis=1)),
-        'ALT': calc_arc_alt_freqs(p_gt.take([2347], axis=1)),
-        'CHA': calc_arc_alt_freqs(p_gt.take([2348], axis=1)),
-        'VIN': calc_arc_alt_freqs(p_gt.take([2349], axis=1)),
-    }
-    # Intialize a list to store the results.
-    diff_list = []
-    # For every haplotype group...
-    for hap in hap_mat_dicc.keys():
-        # For every archaic...
-        for arc in arc_dip_dicc.keys():
-            # Compute the number of pairwise differences.
-            diff_list.append(hap_mat_diffs(hap_mat_dicc[hap], arc_dip_dicc[arc]))
-    # Intialize an ordered list of pairwise comparisons.
-    combos = [
-        ('ARC', 'HUM'),
-        ('ARC', 'REC'),
-        ('HUM', 'REC'),
-        ('ARC', 'ARC'),
-        ('HUM', 'HUM'),
-        ('REC', 'REC'),
-    ]
-    # For every combination...
-    for combo in combos:
-        # Extract the haplotype groups.
-        key_1, key_2 = combo
-        # Compute the number of pairwise differences.
-        diff_list.append(hap_mat_diffs(hap_mat_dicc[key_1], hap_mat_dicc[key_2]))
-    # Intialize a list to store the sequence diverence results.
-    seq_div_list = []
-    # For all pairwise comparisons...
-    for i in range(18):
-        # Extract the comparison and then effective sequence length.
-        pwd = diff_list[i]
-        esl = esl_idx_dicc[i]
-        # Append the results.
-        seq_div_list.append(pwd / esl)
-    # Intilaize a results dictionary.
-    pwd_dicc = {
-        'ABS': np.array(diff_list),
-        'NORM': np.array(seq_div_list),
-    }
-    return pwd_dicc
-
-# Define a function to load the windowed pairwise difefrences haplo-group divergence results.
-def load_tgp_hap_group_pwd_div_windows(window_size=72):
-    # Intialize a dictionary to store the results.
-    pwd_dicc = {
-        'ABS': {}, 'NORM': {},
-    }
-    # Intialize an effective sequence length dictionary.
-    esl_idx_dicc = {
-        0: 'DEN', 1: 'ALT', 2: 'CHA', 3: 'VIN',
-        4: 'DEN', 5: 'ALT', 6: 'CHA', 7: 'VIN',
-        8: 'DEN', 9: 'ALT', 10: 'CHA', 11: 'VIN',
-        12: 'TGP', 13: 'TGP', 14: 'TGP',
-        15: 'TGP', 16: 'TGP', 17: 'TGP',
-    }
-    # Load the effective sequence lengths.
-    esl_df = load_windows('tgp', 'variant', window_size=window_size)
-    # For all chromosomes...
-    for chrom in range(1, 23):
-        # If this is the first chromosome...
-        if chrom == 1:
-            # Load the matricies.
-            pw_mat = np.loadtxt(
-                f'../sequence_divergence/tgp/windows/haplo_group_pw_diffs_chr{chrom}_{window_size}kb.csv.gz',
-                delimiter=',',
-            )
-            # Intialize an empty matrix.
-            sd_mat = np.empty_like(pw_mat)
-            # For every pairwise comparison.
-            for i in range(18):
-                # Extract the effective sequence lengths.
-                esl = esl_df[esl_df['CHR'] == chrom][esl_idx_dicc[i]].values
-                # Extract the pairwise comparison.
-                pw = pw_mat[:, i]
-                # Fill in the sequnece divergence.
-                sd_mat[:, i] = pw / esl
-            # Intialize the results.
-            pwd_dicc['ABS'] = pw_mat
-            pwd_dicc['NORM'] = sd_mat
-        else:
-            # Load the matricies.
-            pw_mat = np.loadtxt(
-                f'../sequence_divergence/tgp/windows/haplo_group_pw_diffs_chr{chrom}_{window_size}kb.csv.gz',
-                delimiter=',',
-            )
-            # Intialize an empty matrix.
-            sd_mat = np.empty_like(pw_mat)
-            # For every pairwise comparison.
-            for i in range(18):
-                # Extract the effective sequence lengths.
-                esl = esl_df[esl_df['CHR'] == chrom][esl_idx_dicc[i]].values
-                # Extract the pairwise comparison.
-                pw = pw_mat[:, i]
-                # Fill in the sequnece divergence.
-                sd_mat[:, i] = pw / esl
-            # Append the results.
-            pwd_dicc['ABS'] = np.concatenate((pwd_dicc['ABS'], pw_mat), axis=0)
-            pwd_dicc['NORM'] = np.concatenate((pwd_dicc['NORM'], sd_mat), axis=0)
-    return pwd_dicc
-
-# Define a function to compile the haplo-group sequence divergence summary.
-def compile_haplo_group_pwd_div_summary(p_gt, window_size=72):
-    # Intialize dictionaries of labels.
-    hap_labels_dicc = {
-        'ARC': r'$Denisovan-like$ Hap.',
-        'HUM': r'$Human-like$ Hap.',
-        'REC': 'Recombinant Hap.',
-    }
-    arc_labels_dicc = {
-        'DEN': 'Denisovan',
-        'ALT': 'Altai Nean.',
-        'CHA': 'Chagyrskaya Nean.',
-        'VIN': 'Vindija Nean.',
-    }
-    # Intialize dictionaries to store the results.
-    pwd_dicc = {
-        'h1': [], 'h2': [],
-        'muc19_a': [], 'muc19_n': [],
-        'wind_m': [], 'wind_s': [], 
-        'wind_p': [],
-    }
-    # For every haplotype group...
-    for hap in hap_labels_dicc.keys():
-        # For every archaic...
-        for arc in arc_labels_dicc.keys():
-            # Fill the dictionary.
-            pwd_dicc['h1'].append(hap_labels_dicc[hap])
-            pwd_dicc['h2'].append(arc_labels_dicc[arc])
-    # Intialize an ordered list of pairwise comparisons.
-    combos = [
-        ('ARC', 'HUM'),
-        ('ARC', 'REC'),
-        ('HUM', 'REC'),
-        ('ARC', 'ARC'),
-        ('HUM', 'HUM'),
-        ('REC', 'REC'),
-    ]
-    # For every combination...
-    for combo in combos:
-        # Extract the haplotype groups.
-        key_1, key_2 = combo
-        # Fill the dictionary.
-        pwd_dicc['h1'].append(hap_labels_dicc[key_1])
-        pwd_dicc['h2'].append(hap_labels_dicc[key_2])
-    # Load the observed, nonoverlapping windows, and window indicies of,
-    # comparable effective sequence length.
-    muc19_pwd = tgp_haplo_group_pwd_div(p_gt=p_gt, window_size=window_size)
-    wind_pwd = load_tgp_hap_group_pwd_div_windows(window_size=window_size)
-    wind_idx = load_esl_qc_windows_idx('tgp', window_size=window_size)
-    # For every pairwise comparison...
-    for idx in range(18):
-            # Determine the mean and standard deviation for non-overlapping windows.
-            wind_pwd_m = np.nanmean(wind_pwd['NORM'][:, idx][wind_idx])
-            wind_pwd_s = np.nanstd(wind_pwd['NORM'][:, idx][wind_idx])
-            # Compute the p-values.
-            pwd_p = (np.count_nonzero(muc19_pwd['NORM'][idx] >= wind_pwd['NORM'][:, idx][wind_idx])
-                        / np.sum(~np.isnan(wind_pwd['NORM'][:, idx][wind_idx])))
-            # Fill the dictionaries.
-            pwd_dicc['muc19_a'].append(muc19_pwd['ABS'][idx])
-            pwd_dicc['muc19_n'].append(muc19_pwd['NORM'][idx])
-            pwd_dicc['wind_m'].append(wind_pwd_m)
-            pwd_dicc['wind_s'].append(wind_pwd_s)
-            pwd_dicc['wind_p'].append(pwd_p)
-    # Convert the dictionaries to dataframes.
-    pwd_df = pd.DataFrame(data=pwd_dicc)
-    # Adjust p-values of 0 by the number of permutations.
-    pwd_df['wind_p'] = np.where(pwd_df['wind_p'] == 0, '<3.242e-05', pwd_df['wind_p'])
-    # Rename all the columns to look pretty.
-    pwd_df.rename(
-        columns={
-            'h1': 'Haplotype Group 1', 'h2': 'Haplotype Group 2',  
-            'muc19_a': r'$MUC19$ (Pairwise Differences)',
-            'muc19_n': r'$MUC19$ (Sequence Divergence)',
-            'wind_m': r'Nonoverlapping Windows ($\mu$)',
-            'wind_s': r'Nonoverlapping Windows ($\sigma$)',
-            'wind_p': r'$P-value$',
-        }, inplace=True,
-    )
-    # Subset to exclude the recombinant haplo-group since it is not a focus of the paper.
-    pwd_df = pwd_df[pwd_df['Haplotype Group 1'] != 'Recombinant Hap.'].reset_index(drop=True)
-    pwd_df = pwd_df[pwd_df['Haplotype Group 2'] != 'Recombinant Hap.'].reset_index(drop=True)
-    return pwd_df
-
 # Define a function to calculate sequence divergence between archaic diplotypes and tgp haplotypes.
 def tgp_haplotype_divergence(p_gt, window_size=748):
     # Load the effective sequence length matrix.
@@ -1633,7 +1301,7 @@ def load_tgp_hap_div_windows(window_size=748):
     return pwd_dicc
 
 # Define a function to compile the haplotype divergence summary.
-def compile_hap_div_summary(p_gt, focal_ind, window_size=748):
+def compile_hap_div_summary(p_gt, focal_ind, window_size=748, export=True):
     # Load in the meta information as a pandas dataframe.
     tgp_df = pd.read_csv(
         '../meta_data/tgp_mod.txt', sep='\t',
@@ -1698,20 +1366,24 @@ def compile_hap_div_summary(p_gt, focal_ind, window_size=748):
         columns={
             'ind': 'Individual',
             'pop': 'Population', 'arc': 'Archaic',
-            'muc19_a1': f'{window_size}kb (Pairwise Differences Hap. 1)',
-            'muc19_a2': f'{window_size}kb (Pairwise Differences Hap. 2)',
-            'muc19_n1': f'{window_size}kb (Sequence Divergence Hap. 1)',
-            'muc19_n2': f'{window_size}kb (Sequence Divergence Hap. 2)',
-            'wind_m1': r'Nonoverlapping Windows ($\mu$ Hap. 1)',
-            'wind_m2': r'Nonoverlapping Windows ($\mu$ Hap. 2)',
-            'wind_s1': r'Nonoverlapping Windows ($\sigma$ Hap. 1)',
-            'wind_s2': r'Nonoverlapping Windows ($\sigma$ Hap. 2)',
-            'wind_p1': r'$P-value$ (Hap. 1)',
-            'wind_p2': r'$P-value$ (Hap. 2)',
+            'muc19_a1': f'{window_size}kb (Pairwise Differences Chr. 1)',
+            'muc19_a2': f'{window_size}kb (Pairwise Differences Chr. 2)',
+            'muc19_n1': f'{window_size}kb (Sequence Divergence Chr. 1)',
+            'muc19_n2': f'{window_size}kb (Sequence Divergence Chr. 2)',
+            'wind_m1': r'Nonoverlapping Windows ($\mu$ Chr. 1)',
+            'wind_m2': r'Nonoverlapping Windows ($\mu$ Chr. 2)',
+            'wind_s1': r'Nonoverlapping Windows ($\sigma$ Chr. 1)',
+            'wind_s2': r'Nonoverlapping Windows ($\sigma$ Chr. 2)',
+            'wind_p1': r'$P-value$ (Chr. 1)',
+            'wind_p2': r'$P-value$ (Chr. 2)',
         }, inplace=True,
     )
     # Show the results for the focal individual of interest.
     pwd_df = pwd_df[pwd_df['Individual'] == focal_ind].reset_index(drop=True)
+    # If export is true...
+    if export:
+        # Export the dataframe as a csv.
+        pwd_df.to_csv(f'./dataframes/{focal_ind.lower()}_longest_tract_haplotype_divergence_{window_size}kb.csv', index=False)
     return pwd_df
 
 
@@ -1761,7 +1433,7 @@ def load_arc_het_windows(window_size=72):
     return het_dicc
 
 # Define a function to compile and summarize the archaic heterozygosity results.
-def compile_arc_het_summary(gt, window_size=72):
+def compile_arc_het_summary(gt, window_size=72, export=True):
     # Intialize a list of archaics.
     arc_dicc = {
         'DEN': 'Denisovan', 'ALT': 'Altai Nean.',
@@ -1806,10 +1478,14 @@ def compile_arc_het_summary(gt, window_size=72):
             'wind_p': r'$P-value$',
         }, inplace=True,
     )
+    # If export is true...
+    if export:
+        # Export the dataframe as a csv.
+        het_df.to_csv(f'./dataframes/archaic_heterozygous_sites_{window_size}kb.csv', index=False)
     return het_df
 
 # Define a function to plot the distribution of heterozygous sites amongst the archaics.
-def plot_arc_het(gt, obs_label, window_size=72):
+def plot_arc_het(gt, obs_label, window_size=72, export=True):
     # Intialize a list of archaics.
     arc_dicc = {
         'DEN': 'Denisovan', 'ALT': 'Altai Nean.',
@@ -1876,6 +1552,13 @@ def plot_arc_het(gt, obs_label, window_size=72):
     # Label the super-axes.
     fig.supylabel('Frequency')
     fig.supxlabel(f'Heterozygous Sites in {window_size}kb Windows')
+    # If export is set to true...
+    if export:
+        # Export the plot.
+        plt.savefig(
+            f'./supp_figures/archaic_heterozygous_sites_{window_size}kb.png', format='png',
+            facecolor='white', bbox_inches='tight', dpi=500,
+        )
     # Show the plot!
     plt.show()
     return
@@ -2017,7 +1700,7 @@ def load_tgp_het_windows(window_size=72):
     return het_dicc
 
 # Define a function to compile and summarize the heterozygosity results.
-def compile_afr_hap_het_summary(gt, window_size=72):
+def compile_afr_hap_het_summary(gt, window_size=72, export=True):
     # Load in the meta information as a pandas dataframe.
     tgp_df = pd.read_csv(
         '../meta_data/tgp_mod_arc.txt', sep='\t',
@@ -2143,10 +1826,14 @@ def compile_afr_hap_het_summary(gt, window_size=72):
             'wind_p': r'$P-value$',
         }, inplace=True,
     )
+    # If export is true...
+    if export:
+        # Export the dataframe as a csv.
+        group_df.to_csv(f'./dataframes/african_and_introgressed_inds_heterozygous_sites_{window_size}kb.csv', index=False)
     return group_df
 
 # Define a function to plot the distribution of heterozygous sites amongst the focal groups.
-def plot_afr_hap_het(gt, obs_label, window_size=72):
+def plot_afr_hap_het(gt, obs_label, window_size=72, export=True):
     # Load in the meta information as a pandas dataframe.
     tgp_df = pd.read_csv(
         '../meta_data/tgp_mod_arc.txt', sep='\t',
@@ -2292,6 +1979,13 @@ def plot_afr_hap_het(gt, obs_label, window_size=72):
     # Label the super-axes.
     fig.supylabel('Frequency')
     fig.supxlabel(f'Average Number of Heterozygous Sites in {window_size}kb Windows')
+    # If export is set to true...
+    if export:
+        # Export the plot.
+        plt.savefig(
+            f'./supp_figures/african_and_introgressed_inds_heterozygous_sites_{window_size}kb.png', format='png',
+            facecolor='white', bbox_inches='tight', dpi=500,
+        )
     # Show the plot!
     plt.show()
     return
@@ -2589,6 +2283,7 @@ def build_tgp_arc_scenario_tables(
     p2_list,
     p3_list,
     window_size=72,
+    export=True,
 ):
     # Load the window indicies that passed QC.
     wind_idx = load_esl_qc_windows_idx('tgp', window_size=window_size)
@@ -2628,6 +2323,10 @@ def build_tgp_arc_scenario_tables(
                 results_dicc[r'$P-value$'].append(muc19_dicc[key][-1])
     # Compile the dataframes
     results_df = pd.DataFrame(data=results_dicc)
+    # If export is true...
+    if export:
+        # Export the dataframe as a csv.
+        results_df.to_csv(f'./dataframes/p1_yri_p2_ooa_p3_{p3_list[0].lower()}_{window_size}kb.csv', index=False)
     return results_df
 
 # Define a function to generate tgp data frames.
@@ -2636,6 +2335,7 @@ def build_arc_anc_scenario_tables(
     wind_dicc,
     config_list,
     window_size=72,
+    export=True,
 ):
     # Load the window indicies that passed QC.
     wind_idx = load_esl_qc_windows_idx('arc', window_size=window_size)
@@ -2673,9 +2373,16 @@ def build_arc_anc_scenario_tables(
         results_dicc[r'$P-value$'].append(muc19_dicc[key][-1])
     # Compile the dataframes
     results_df = pd.DataFrame(data=results_dicc)
+    # If export is true...
+    if export & (p1 == 'ALT'):
+        # Export the dataframe as a csv.
+        results_df.to_csv(f'./dataframes/p1_alt_p2_nea_p3_den_{window_size}kb.csv', index=False)
+    elif export & (p1 == 'CHA'):
+        # Export the dataframe as a csv.
+        results_df.to_csv(f'./dataframes/p1_cha_p2_vin_p3_arc_{window_size}kb.csv', index=False)
     return results_df
 
-def plot_tgp_arc_scenarios(p1, p3, wind_dicc, muc19_dicc, obs_label, window_size=72):
+def plot_tgp_arc_scenarios(p1, p3, wind_dicc, muc19_dicc, obs_label, window_size=72, export=True):
     # Intialize a list of p3 populations.
     p2_list = [
         'PEL', 'MXL', 'CLM', 'PUR', 'NA', # AMR.
@@ -2756,10 +2463,17 @@ def plot_tgp_arc_scenarios(p1, p3, wind_dicc, muc19_dicc, obs_label, window_size
     # Label the super-axes.
     fig.supylabel('Frequency')
     fig.supxlabel(r'$D+$'+f'(({p1}, P2), {arc_dicc[p3]}) in {window_size}kb Windows')
+    # If export is set to true...
+    if export:
+        # Export the plot.
+        plt.savefig(
+            f'./supp_figures/p1_yri_p2_ooa_p3_{p3.lower()}_{window_size}kb.png', format='png',
+            facecolor='white', bbox_inches='tight', dpi=500,
+        )
     plt.show()
     return
 
-def plot_arc_anc_scenarios(p3_list, wind_dicc, muc19_dicc, obs_label,  window_size=72):
+def plot_arc_anc_scenarios(p3_list, wind_dicc, muc19_dicc, obs_label, window_size=72, export=True):
     # If the Altain Nean. is in the p3 list...
     if 'ALT' in p3_list:
         # Intialize a list of configurations.
@@ -2825,1156 +2539,19 @@ def plot_arc_anc_scenarios(p3_list, wind_dicc, muc19_dicc, obs_label,  window_si
     # Label the super-axes.
     fig.supylabel('Frequency')
     fig.supxlabel(r'$D+$'+f'((P1, P2), P3) in {window_size}kb Windows')
+    # If export is set to true...
+    if export & (p1 == 'ALT'):
+        # Export the plot.
+        plt.savefig(
+            f'./supp_figures/p1_alt_p2_nea_p3_den_{window_size}kb.png', format='png',
+            facecolor='white', bbox_inches='tight', dpi=500,
+        )
+    elif export & (p1 == 'CHA'):
+        # Export the plot.
+        plt.savefig(
+            f'./supp_figures/p1_cha_p2_vin_p3_arc_{window_size}kb.png', format='png',
+            facecolor='white', bbox_inches='tight', dpi=500,
+        )
     # Show the plot!
     plt.show()
     return
-
-
-###########################
-### SEQUENCE DIVERGENCE ###
-###########################
-
-# Define a function to calculate pairwise sequence divergence between the archaics.
-def arc_div(gt, window_size=72):
-    # Intialize a list of archaics and there indicies.
-    arc_idx_dicc = {
-        'DEN': 3, 'ALT': 0,
-        'CHA': 1, 'VIN': 2,
-    }
-    # Intialize a list of all combinations.
-    arc_combos = [('DEN', 'ALT'), ('DEN', 'CHA'), ('DEN', 'VIN')]
-    # Intialize a dictionary for distance results.
-    div_dicc = {
-        'ABS': {
-            'DEN': {'ALT': {}, 'CHA': {}, 'VIN': {}},
-        },
-        'NORM': {
-            'DEN': {'ALT': {}, 'CHA': {}, 'VIN': {}},
-        },
-    }
-    # Load the muc19 effective sequence lengths.
-    esl_mat = load_hap_esl_mat(prefix='arc_and_tgp', window_size=window_size)
-    # Intialize an effective sequence length dictionary.
-    esl_dicc = {}
-    # Intialize the starting index.
-    idx = 4
-    # For every archaic...
-    for key_1 in div_dicc['ABS'].keys():
-        # Intialize the subdictionary.
-        esl_dicc[key_1] = {}
-        # For every unique comparison...
-        for key_2 in div_dicc['ABS'][key_1].keys():
-            # Fill the dictionary.
-            esl_dicc[key_1][key_2] = esl_mat[0, idx]
-            # Move the counter forward.
-            idx += 1
-    # For every combo...
-    for combo in arc_combos:
-        # Grab the two archaics.
-        arc_1, arc_2 = combo
-        # Determine the sample list.
-        samp_list = [arc_idx_dicc[arc_1], arc_idx_dicc[arc_2]]
-        # Determine the indicies where all samples have variable called sites.
-        called_mask = (gt.take(samp_list, axis=1).is_called() == True).all(axis=1)
-        # If there are no variable sites called between the samples...
-        if (called_mask.sum() == 0):
-            div_dicc[arc_1][arc_2]['ABS'] = 0
-        # Else...
-        else:
-            # Determine the alternative allele frequencies per archaic.
-            arc_1_freq = calc_alt_freqs(gt.take([arc_idx_dicc[arc_1]], axis=1).compress(called_mask, axis=0))
-            arc_2_freq = calc_alt_freqs(gt.take([arc_idx_dicc[arc_2]], axis=1).compress(called_mask, axis=0))
-            # Compute the number of pairwise differences.
-            pw_diffs = ((arc_1_freq * (1 - arc_2_freq)) + (arc_2_freq * (1 - arc_1_freq)))
-            # Compute the total number of pairwise differences.
-            tot_pw = np.nansum(pw_diffs)
-            # Fill the dictionary.
-            div_dicc['ABS'][arc_1][arc_2] = tot_pw
-            div_dicc['NORM'][arc_1][arc_2] = tot_pw / esl_dicc[arc_1][arc_2]
-    return div_dicc
-
-# Define a function to load the archaic sequence divergence window data.
-def load_arc_div_windows(window_size=72):
-    # Intialize a dictionary for distance results.
-    div_dicc = {
-        'ABS': {
-            'DEN': {'ALT': np.array([]), 'CHA': np.array([]), 'VIN': np.array([])},
-        },
-        'NORM': {
-            'DEN': {'ALT': np.array([]), 'CHA': np.array([]), 'VIN': np.array([])},
-        },
-    }
-    # Define the ordered comparison list.
-    pw_combos = [
-        'DEN-ALT', 'DEN-CHA', 'DEN-VIN',
-    ]
-    # Load the effective sequence lengths.
-    esl_df = load_windows('arc', 'variant', window_size=window_size)
-    # For all chromosomes...
-    for chrom in range(1, 23):
-        # Load the divergence data.
-        div = np.loadtxt(
-            f'../sequence_divergence/arc/windows/den_nea_div_chr{chrom}_{window_size}kb.csv.gz',
-            delimiter=',',
-        )
-        # For every pairwise comparison...
-        for idx in range(len(pw_combos)):
-            # Extract the combination and archaics.
-            combo = pw_combos[idx]
-            arc_1, arc_2 = combo.split('-')
-            # Extract the effective sequence lengths.
-            esl = esl_df[esl_df['CHR'] == chrom][combo].values
-            # Fill the dictionary.
-            div_dicc['ABS'][arc_1][arc_2] = np.append(div_dicc['ABS'][arc_1][arc_2], div[:, idx])
-            div_dicc['NORM'][arc_1][arc_2] = np.append(div_dicc['NORM'][arc_1][arc_2], (div[:, idx] / esl))
-    return div_dicc
-
-# Define a function to compile and summarize the archaic sequence divergence results.
-def compile_den_div_summary(gt, window_size=72):
-    # Intialize a list of archaics and there indicies.
-    arc_dicc = {
-        'DEN': 'Denisovan', 'ALT': 'Altai Nean.',
-        'CHA': 'Chagyrskaya Nean.', 'VIN': 'Vindija Nean.',
-    }
-    # Intialize a dictionary to store the results.
-    df_dicc = {
-        'arc_1': [], 'arc_2': [],
-        'muc19_a': [], 'muc19_n': [],
-        'wind_m': [], 'wind_s': [],
-        'wind_p': [],
-    }
-    # Define the ordered comparison list.
-    pw_combos = [
-        'DEN-ALT', 'DEN-CHA', 'DEN-VIN',
-    ]
-    # Load the observed, nonoverlapping windows, and window indicies of,
-    # comparable effective sequence length.
-    muc19_dicc = arc_div(gt, window_size=window_size)
-    wind_dicc = load_arc_div_windows(window_size=window_size)
-    wind_idx = load_esl_qc_windows_idx('arc', window_size=window_size)
-    # For every pairwise comparison...
-    for idx in range(len(pw_combos)):
-        # Extract the combination and archaics.
-        combo = pw_combos[idx]
-        arc_1, arc_2 = combo.split('-')
-        # Determine the mean and standard deviation for non-overlapping windows.
-        wind_m = np.nanmean(wind_dicc['NORM'][arc_1][arc_2][wind_idx])
-        wind_s = np.nanstd(wind_dicc['NORM'][arc_1][arc_2][wind_idx])
-        # Compute the p-value.
-        wind_p = (np.count_nonzero(muc19_dicc['NORM'][arc_1][arc_2] <= wind_dicc['NORM'][arc_1][arc_2][wind_idx])
-                  / np.sum(~np.isnan(wind_dicc['NORM'][arc_1][arc_2][wind_idx])))
-        # Append the results.
-        df_dicc['arc_1'].append(arc_dicc[arc_1])
-        df_dicc['arc_2'].append(arc_dicc[arc_2])
-        df_dicc['muc19_a'].append(muc19_dicc['ABS'][arc_1][arc_2])
-        df_dicc['muc19_n'].append(muc19_dicc['NORM'][arc_1][arc_2])
-        df_dicc['wind_m'].append(wind_m)
-        df_dicc['wind_s'].append(wind_s)
-        df_dicc['wind_p'].append(wind_p)
-    # Convert the dictionary to a dataframe.
-    div_df = pd.DataFrame(data=df_dicc)
-    # Adjust p-values of 0 by the number of permutations.
-    div_df['wind_p'] = np.where(div_df['wind_p'] == 0, '<3.242e-05', div_df['wind_p'])
-    # Rename all the columns to look pretty.
-    div_df.rename(
-        columns={
-            'arc_1': 'Archaic 1', 'arc_2': 'Archaic 2',
-            'muc19_a': r'$MUC19$ (Pairwise Differences)', 'muc19_n': r'$MUC19$ (Sequence Divergence)',
-            'wind_m': r'Nonoverlapping Windows $\left( \mu \right)$',
-            'wind_s': r'Nonoverlapping Windows $\left( \sigma \right)$',
-            'wind_p': r'$P-value$',
-        }, inplace=True,
-    )
-    return div_df
-
-# Define a function to plot pairwise sequence divergence amongst the archaics.
-def plot_den_div(gt, obs_label, window_size=72):
-    # Intialize a list of populations to plot.
-    arc1_list = ['DEN', 'DEN', 'DEN']
-    arc2_list = ['ALT', 'CHA', 'VIN']
-    # Intialize a row and columns list.
-    rows = [0, 1, 2]
-    # Load the observed, nonoverlapping windows, and window indicies of,
-    # comparable effective sequence length.
-    muc19_dicc = arc_div(gt, window_size=window_size)
-    wind_dicc = load_arc_div_windows(window_size=window_size)
-    wind_idx = load_esl_qc_windows_idx('arc', window_size=window_size)
-    # Determine the significance threshold.
-    sig_threshold = 0.05 / 3
-    # Intialize figures and axes.
-    fig, axes = plt.subplots(
-        1, 3, figsize=(6, 3), dpi=300,
-        sharex=True, sharey=True,
-    )
-    # For every population...
-    for idx in range(len(arc1_list)):
-        # Extract the archaics 
-        arc_1 = arc1_list[idx]
-        arc_2 = arc2_list[idx]
-        # Compute the p-value.
-        wind_p = (np.count_nonzero(muc19_dicc['NORM'][arc_1][arc_2] <= wind_dicc['NORM'][arc_1][arc_2][wind_idx])
-                  / np.sum(~np.isnan(wind_dicc['NORM'][arc_1][arc_2][wind_idx])))
-        # Plot the normalized sequence divergence.
-        axes[rows[idx]].hist(
-            wind_dicc['NORM'][arc_1][arc_2][wind_idx],
-            bins=np.arange(0, 0.005, 0.0001),
-            histtype='stepfilled', color='tab:blue',
-        )
-        # Plot the observed value for muc19.
-        axes[rows[idx]].axvline(
-            muc19_dicc['NORM'][arc_1][arc_2], 0, 1,
-            color='black', linestyle='dashed',
-        )
-        # If the p-value is significant after correcting for multiple comparisons...
-        if wind_p < sig_threshold:
-            # If the p-value is 0...
-            if wind_p == 0:
-                # Construct the title.
-                title = arc_1+' - '+arc_2+'\n'+r'$P-value=$'+'<3.242e-05'+r'$^{*}$'
-            # Else...
-            else:
-                # Construct the title.
-                title = arc_1+' - '+arc_2+'\n'+r'$P-value=$'+'{:.3e}'.format(wind_p)+r'$^{*}$'
-        # Else...
-        else:
-            # Construct the title.
-            title = arc_1+' - '+arc_2+'\n'+r'$P-value=$'+'{:.3e}'.format(wind_p)+r'$^{ns}$'
-        # Add the subplot title.
-        axes[rows[idx]].set_title(title)
-    # Configure the legend.
-    legend_elements = [
-        Line2D([0], [0], color='black', linestyle='dashed', label=obs_label),
-    ]
-    # Add a figure legend.
-    fig.legend(
-        handles=legend_elements, loc='center left',
-        bbox_to_anchor=(1.0, 0.5), frameon=False,
-    )
-    # Label the super-axes.
-    fig.supylabel('Frequency')
-    fig.supxlabel(f'Sequence Divergence in {window_size}kb Windows')
-    # Show the plot!
-    plt.show()
-    return
-
-# Define a function to calculate sequence divergence between the tgp and archaics.
-def tgp_arc_div(gt, window_size=72):
-    # Intialize a dictionary for introgressed individuals.
-    int_dicc = {
-        'HET': np.loadtxt(f'../meta_data/{window_size}kb_all_het_int_idx.csv', delimiter=',', dtype=int),
-        'HOM': np.loadtxt(f'../meta_data/{window_size}kb_all_hom_int_idx.csv', delimiter=',', dtype=int),
-    }
-    # Load in the meta information as a pandas dataframe.
-    tgp_df = pd.read_csv(
-        '../meta_data/tgp_mod.txt', sep='\t',
-        names=['IND', 'POP', 'SUPERPOP'],
-    )
-    # Intialize an ordered population list.
-    tgp_pop_list = [
-        'LWK', 'GWD', 'MSL', 'ESN', 'YRI', # AFR.
-        'BEB', 'STU', 'ITU', 'PJL', 'GIH', # SAS.
-        'CHB', 'KHV', 'CHS', 'JPT', 'CDX', # EAS.    
-        'TSI', 'CEU', 'IBS', 'GBR', 'FIN', # EUR.
-        'PEL', 'MXL', 'CLM', 'PUR', # AMR.
-    ]
-    # Load the muc19 effective sequence lengths.
-    esl_mat = load_hap_esl_mat(prefix='arc_and_tgp', window_size=window_size)
-    # Intialize a dictionary to store all archaic indicies and effective sequence lengths.
-    arc_dicc = {
-        'ALT': {'IDX': np.array([2347]), 'ESL': esl_mat[1, 0]},
-        'CHA': {'IDX': np.array([2348]), 'ESL': esl_mat[1, 1]},
-        'VIN': {'IDX': np.array([2349]), 'ESL': esl_mat[1, 2]},
-        'DEN': {'IDX': np.array([2350]), 'ESL': esl_mat[1, 3]},
-    }
-    # Intialize a dictionary to store the results.
-    div_dicc = {
-        'ABS': {
-            'DEN': {}, 'ALT': {}, 'CHA': {}, 'VIN': {},
-        },
-        'NORM': {
-            'DEN': {}, 'ALT': {}, 'CHA': {}, 'VIN': {},
-        },
-    }
-    # For every archaic...
-    for arc in arc_dicc.keys():
-        # For every population...
-        for pop in tgp_pop_list:
-            # Extract the sample indicies and ids.
-            tgp_idx = tgp_df[tgp_df['POP'] == pop].index.values
-            tgp_ind = tgp_df[tgp_df['POP'] == pop]['IND'].values
-            # Intialize the subdictionaries.
-            div_dicc['ABS'][arc][pop] = {}
-            div_dicc['NORM'][arc][pop] = {}
-            # Determine the total sample list.
-            samp_list = np.concatenate([tgp_idx, arc_dicc[arc]['IDX']])
-            # Determine the indicies where all samples are called.
-            called_mask = (gt.take(samp_list, axis=1).is_called() == True).all(axis=1)
-            # Determine the indicies where we have varibale sites.
-            var_mask = gt.take(samp_list, axis=1).compress(called_mask, axis=0).count_alleles().is_variant()
-            # Intialize lists to store the population results.
-            abs_div = []
-            norm_div = []
-            # Determine the alternate allele frequency for the archaic.
-            arc_freq = calc_alt_freqs(
-                gt.take(arc_dicc[arc]['IDX'], axis=1,
-                       ).compress(called_mask, axis=0).compress(var_mask, axis=0),
-            )
-            # For every individual in the target population...
-            for idx in range(tgp_idx.size):
-                # Extract the individual's index and id.
-                samp_idx = tgp_idx[idx]
-                samp_id = tgp_ind[idx]
-                # Intialize the subdictionaries.
-                div_dicc['ABS'][arc][pop][samp_id] = {}
-                div_dicc['NORM'][arc][pop][samp_id] = {}
-                # Determine the alternative allele frequency.
-                ind_freq = calc_alt_freqs(
-                    gt.take([samp_idx], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0),
-                )
-                # Compute the number of pairwise differences.
-                pw_diffs = ((arc_freq * (1 - ind_freq)) + (ind_freq * (1 - arc_freq)))
-                # Compute the total number of pairwise differences.
-                tot_pw = np.nansum(pw_diffs)
-                # Compute the sequence divergence.
-                seq_div = tot_pw / arc_dicc[arc]['ESL']
-                # Append the population lists.
-                abs_div.append(tot_pw)
-                norm_div.append(seq_div)
-                # Fill the dictionaries.
-                div_dicc['ABS'][arc][pop][samp_id]['DIV'] = tot_pw
-                div_dicc['NORM'][arc][pop][samp_id]['DIV'] = seq_div
-                # If the individual carries two Denisovan-like haplotypes...
-                if samp_idx in int_dicc['HOM']:
-                    # Fill the dictionaries.
-                    div_dicc['ABS'][arc][pop][samp_id]['INT'] = 2
-                    div_dicc['NORM'][arc][pop][samp_id]['INT'] = 2
-                # Else-if the individual carries one Denisovan-like haplotype...
-                elif samp_idx in int_dicc['HET']:
-                    # Fill the dictionaries.
-                    div_dicc['ABS'][arc][pop][samp_id]['INT'] = 1
-                    div_dicc['NORM'][arc][pop][samp_id]['INT'] = 1
-                # Else...
-                else:
-                # Fill the dictionaries.
-                    div_dicc['ABS'][arc][pop][samp_id]['INT'] = 0
-                    div_dicc['NORM'][arc][pop][samp_id]['INT'] = 0
-            # Fill the dictionaries with the population results.
-            div_dicc['ABS'][arc][pop]['AVG'] = np.nanmean(np.array(abs_div))
-            div_dicc['NORM'][arc][pop]['AVG'] = np.nanmean(np.array(norm_div))
-    return div_dicc
-
-# Define a function to load the tgp - archaic sequence divergence window data.
-def load_tgp_arc_div_windows(window_size=72):
-    # Intialize a dictionary for distance results.
-    div_dicc = {
-        'ABS': {
-            'DEN': {}, 'ALT': {}, 'CHA': {}, 'VIN': {},
-        },
-        'NORM': {
-            'DEN': {}, 'ALT': {}, 'CHA': {}, 'VIN': {},
-        },
-    }
-    # Intialize a dictionary for introgressed individuals.
-    int_dicc = {
-        'HET': np.loadtxt(f'../meta_data/{window_size}kb_all_het_int_idx.csv', delimiter=',', dtype=int),
-        'HOM': np.loadtxt(f'../meta_data/{window_size}kb_all_hom_int_idx.csv', delimiter=',', dtype=int),
-    }
-    # Load in the meta information as a pandas dataframe.
-    tgp_df = pd.read_csv(
-        '../meta_data/tgp_mod.txt', sep='\t',
-        names=['IND', 'POP', 'SUPERPOP'],
-    )
-    # Intialize an ordered population list.
-    tgp_pop_list = [
-        'LWK', 'GWD', 'MSL', 'ESN', 'YRI', # AFR.
-        'BEB', 'STU', 'ITU', 'PJL', 'GIH', # SAS.
-        'CHB', 'KHV', 'CHS', 'JPT', 'CDX', # EAS.    
-        'TSI', 'CEU', 'IBS', 'GBR', 'FIN', # EUR.
-        'PEL', 'MXL', 'CLM', 'PUR', # AMR.
-    ]
-    # Load the effective sequence lengths.
-    esl_df = load_windows('tgp', 'variant', window_size=window_size)
-    # For every archaic...
-    for arc in ['DEN', 'ALT', 'CHA', 'VIN']:
-        # For every population...
-        for pop in tgp_pop_list:
-            # Extract the sample indicies and ids.
-            tgp_idx = tgp_df[tgp_df['POP'] == pop].index.values
-            tgp_ind = tgp_df[tgp_df['POP'] == pop]['IND'].values
-            # Intialize the subdictionaries.
-            div_dicc['ABS'][arc][pop] = {}
-            div_dicc['NORM'][arc][pop] = {}
-            # Intialize lists to store the population results.
-            abs_div = np.array([])
-            norm_div = np.array([])
-            # For every individual in the target population...
-            for idx in range(tgp_idx.size):
-                # Extract the individual's index and id.
-                samp_idx = tgp_idx[idx]
-                samp_id = tgp_ind[idx]
-                # Intialize the subdictionaries.
-                div_dicc['ABS'][arc][pop][samp_id] = {'DIV': np.array([])}
-                div_dicc['NORM'][arc][pop][samp_id] = {'DIV': np.array([])}
-                # If the individual carries two Denisovan-like haplotypes...
-                if samp_idx in int_dicc['HOM']:
-                    # Fill the dictionaries.
-                    div_dicc['ABS'][arc][pop][samp_id]['INT'] = 2
-                    div_dicc['NORM'][arc][pop][samp_id]['INT'] = 2
-                # Else-if the individual carries one Denisovan-like haplotype...
-                elif samp_idx in int_dicc['HET']:
-                    # Fill the dictionaries.
-                    div_dicc['ABS'][arc][pop][samp_id]['INT'] = 1
-                    div_dicc['NORM'][arc][pop][samp_id]['INT'] = 1
-                # Else...
-                else:
-                # Fill the dictionaries.
-                    div_dicc['ABS'][arc][pop][samp_id]['INT'] = 0
-                    div_dicc['NORM'][arc][pop][samp_id]['INT'] = 0
-            # For all chromosomes...
-            for chrom in range(1, 23):
-                # Intialize the archaic and tgp population ids.
-                tgp_id = pop.lower()
-                arc_id = arc.lower()
-                # Load the divergence data.
-                div = np.loadtxt(
-                    f'../sequence_divergence/tgp/windows/pw_diffs_{tgp_id}_{arc_id}_chr{chrom}_{window_size}kb.csv.gz',
-                    delimiter=',',
-                )
-                # Extract the effective sequence lengths.
-                esl = esl_df[esl_df['CHR'] == chrom][arc].values
-                # Find the mean number of pairwise differences.
-                mean_pw = np.nanmean(div, axis=1)
-                # Compute sequence divergence.
-                seq_div = mean_pw / esl
-                # Append the population results.
-                abs_div = np.append(abs_div, mean_pw)
-                norm_div = np.append(norm_div, seq_div)
-                # For every individual in the target population...
-                for idx in range(tgp_idx.size):
-                    # Extract the individual's id.
-                    samp_id = tgp_ind[idx]
-                    # Extract the pairwise differences for the individual.
-                    pw_diff = div[:, idx]
-                    # Compute the sequence divergence.
-                    ind_div = pw_diff / esl
-                    # Fill the dictionaries.
-                    div_dicc['ABS'][arc][pop][samp_id]['DIV'] = np.append(div_dicc['ABS'][arc][pop][samp_id]['DIV'], pw_diff)
-                    div_dicc['NORM'][arc][pop][samp_id]['DIV'] = np.append(div_dicc['NORM'][arc][pop][samp_id]['DIV'], ind_div)
-            # Fill the dictionaries with the population results.
-            div_dicc['ABS'][arc][pop]['AVG'] = abs_div
-            div_dicc['NORM'][arc][pop]['AVG'] = norm_div
-    return div_dicc
-
-# Define a function to compile and summarize the sequence divergence among the focal groups.
-def compile_afr_hap_div_summary(gt, arc_list, window_size=72):
-    # Load in the meta information as a pandas dataframe.
-    tgp_df = pd.read_csv(
-        '../meta_data/tgp_mod_arc.txt', sep='\t',
-        names=['IND', 'POP', 'SUPERPOP'],
-    )
-    # Intialize a dictionary for introgressed individuals.
-    int_dicc = {
-        'HET': np.loadtxt(f'../meta_data/{window_size}kb_all_het_int_idx.csv', delimiter=',', dtype=int),
-        'HOM': np.loadtxt(f'../meta_data/{window_size}kb_all_hom_int_idx.csv', delimiter=',', dtype=int),
-    }
-    # Intialize a list of archaics and there indicies.
-    arc_dicc = {
-        'DEN': 'Denisovan', 'ALT': 'Altai Nean.',
-        'CHA': 'Chagyrskaya Nean.', 'VIN': 'Vindija Nean.',
-    }
-    # Intialize a dictionary of group labels.
-    group_labels = {
-        'AFR': 'African Inds.',
-        'HET': 'Heterozygous Inds.',
-        'HOM': 'Homozygous Inds.',
-    }
-    # Intialize ordered population lists.
-    ooa_pops = [
-        'BEB', 'STU', 'ITU', 'PJL', 'GIH', # SAS.
-        'CHB', 'KHV', 'CHS', 'JPT', 'CDX', # EAS.    
-        'TSI', 'CEU', 'IBS', 'GBR', 'FIN', # EUR.
-        'PEL', 'MXL', 'CLM', 'PUR', # AMR.
-    ]
-    afr_pops = ['LWK', 'GWD', 'MSL', 'ESN', 'YRI']
-    # Load the effective sequence lengths.
-    esl_df = load_windows('tgp', 'variant', window_size=window_size)
-    # Intialize dictionaries to store the results.
-    mat_dicc = {
-        'ABS': {
-            'DEN': {}, 'ALT': {}, 'CHA': {}, 'VIN': {},
-        },
-        'NORM': {
-            'DEN': {}, 'ALT': {}, 'CHA': {}, 'VIN': {},
-        },
-    }
-    # For every sequence divergence type...
-    for key_1 in mat_dicc.keys():
-        # For every archaic...
-        for key_2 in mat_dicc[key_1].keys():
-            # Fill the dictionary.
-            mat_dicc[key_1][key_2]['AFR'] = {
-                'M': np.array([]),
-                'W': np.empty((esl_df.shape[0], tgp_df[tgp_df['SUPERPOP'] == 'AFR'].shape[0])),
-            }
-            mat_dicc[key_1][key_2]['HET'] =  {
-                'M': np.array([]),
-                'W': np.empty((esl_df.shape[0], int_dicc['HET'].size)),
-            }
-            mat_dicc[key_1][key_2]['HOM'] =  {
-                'M': np.array([]),
-                'W': np.empty((esl_df.shape[0], int_dicc['HOM'].size)),
-            }
-    # Load the observed, nonoverlapping windows, and window indicies of,
-    # comparable effective sequence length.
-    muc19_dicc = tgp_arc_div(gt, window_size=window_size)
-    wind_dicc = load_tgp_arc_div_windows(window_size=window_size)
-    wind_idx = load_esl_qc_windows_idx('tgp', window_size=window_size)
-    # For every archaic...
-    for arc in arc_list:
-        # Intialize a counter for the AFR individuals.
-        afr_c = 0
-        # For every AFR population...
-        for pop in afr_pops:
-            # For every individual...
-            for key in muc19_dicc['ABS'][arc][pop].keys():
-                # If the key isn't the population average key...
-                if key != 'AVG':
-                    # Fill the dictionary.
-                    mat_dicc['ABS'][arc]['AFR']['M'] = np.append(
-                        mat_dicc['ABS'][arc]['AFR']['M'], muc19_dicc['ABS'][arc][pop][key]['DIV'],
-                    )
-                    mat_dicc['NORM'][arc]['AFR']['M'] = np.append(
-                        mat_dicc['NORM'][arc]['AFR']['M'], muc19_dicc['NORM'][arc][pop][key]['DIV'],
-                    )
-                    mat_dicc['ABS'][arc]['AFR']['W'][:, afr_c] = wind_dicc['ABS'][arc][pop][key]['DIV']
-                    mat_dicc['NORM'][arc]['AFR']['W'][:, afr_c] = wind_dicc['NORM'][arc][pop][key]['DIV']
-                    # Move the Africa counter forward.
-                    afr_c += 1
-    # For every archaic...
-    for arc in arc_list:
-        # Intialize a counter for the het and hom individuals.
-        het_c = 0
-        hom_c = 0
-        # For every AFR population...
-        for pop in ooa_pops:
-            # For every individual...
-            for key in muc19_dicc['ABS'][arc][pop].keys():
-                # If the key isn't the population average key...
-                if key != 'AVG':
-                    # If this is a het individual...
-                    if muc19_dicc['ABS'][arc][pop][key]['INT'] == 1:
-                        # Fill the dictionary.
-                        mat_dicc['ABS'][arc]['HET']['M'] = np.append(
-                            mat_dicc['ABS'][arc]['HET']['M'], muc19_dicc['ABS'][arc][pop][key]['DIV'],
-                        )
-                        mat_dicc['NORM'][arc]['HET']['M'] = np.append(
-                            mat_dicc['NORM'][arc]['HET']['M'], muc19_dicc['NORM'][arc][pop][key]['DIV'],
-                        )
-                        mat_dicc['ABS'][arc]['HET']['W'][:, het_c] = wind_dicc['ABS'][arc][pop][key]['DIV']
-                        mat_dicc['NORM'][arc]['HET']['W'][:, het_c] = wind_dicc['NORM'][arc][pop][key]['DIV']
-                        # Move the het counter forward.
-                        het_c += 1
-                    # Else-if this is a hom individual.
-                    elif muc19_dicc['ABS'][arc][pop][key]['INT'] == 2:
-                        # Fill the dictionary.
-                        mat_dicc['ABS'][arc]['HOM']['M'] = np.append(
-                            mat_dicc['ABS'][arc]['HOM']['M'], muc19_dicc['ABS'][arc][pop][key]['DIV'],
-                        )
-                        mat_dicc['NORM'][arc]['HOM']['M'] = np.append(
-                            mat_dicc['NORM'][arc]['HOM']['M'], muc19_dicc['NORM'][arc][pop][key]['DIV'],
-                        )
-                        mat_dicc['ABS'][arc]['HOM']['W'][:, hom_c] = wind_dicc['ABS'][arc][pop][key]['DIV']
-                        mat_dicc['NORM'][arc]['HOM']['W'][:, hom_c] = wind_dicc['NORM'][arc][pop][key]['DIV']
-                        # Move the hom counter forward.
-                        hom_c += 1
-    # Intialize a dictionary to store teh results.
-    df_dicc = {
-        'group': [], 'arc': [],
-        'muc19_a': [], 'muc19_n': [],
-        'wind_m': [], 'wind_s': [], 'wind_p': [],
-    }
-    # For every archaic...
-    for arc in arc_list:
-        # For every focal group...
-        for key in group_labels.keys():
-            # Compute the means.
-            muc19_mean = np.nanmean(mat_dicc['NORM'][arc][key]['M'])
-            wind_mean = np.nanmean(mat_dicc['NORM'][arc][key]['W'], axis=1)
-            # Determine the mean and standard deviation for non-overlapping windows.
-            wind_m = np.nanmean(wind_mean[wind_idx])
-            wind_s = np.nanstd(wind_mean[wind_idx])
-            # If this is the homozygous individuals...
-            if (key == 'HOM') & (arc == 'DEN'):
-                # Compute the p-value.
-                wind_p = (np.count_nonzero(muc19_mean >= wind_mean[wind_idx])
-                          / np.sum(~np.isnan(wind_mean[wind_idx])))
-            # else.
-            else:
-                # Compute the p-value.
-                wind_p = (np.count_nonzero(muc19_mean <= wind_mean[wind_idx])
-                          / np.sum(~np.isnan(wind_mean[wind_idx])))
-            # Append the population results.
-            df_dicc['group'].append(group_labels[key])
-            df_dicc['arc'].append(arc_dicc[arc])
-            df_dicc['muc19_a'].append(np.nanmean(mat_dicc['ABS'][arc][key]['M']))
-            df_dicc['muc19_n'].append(muc19_mean)
-            df_dicc['wind_m'].append(wind_m)
-            df_dicc['wind_s'].append(wind_s)
-            df_dicc['wind_p'].append(wind_p)
-    # Convert the dictionary to a dataframe.
-    group_df = pd.DataFrame(data=df_dicc)
-    # Adjust p-values of 0 by the number of permutations.
-    group_df['wind_p'] = np.where(group_df['wind_p'] == 0, '<3.242e-05', group_df['wind_p'])
-    # Rename all the columns to look pretty.
-    group_df.rename(
-        columns={
-            'group': 'Group', 'arc': 'Archaic',
-            'muc19_a': r'$MUC19$ (Pairwise Differences)', 'muc19_n': r'$MUC19$ (Sequence Divergence)',
-            'wind_m': r'Nonoverlapping Windows $\left( \mu \right)$',
-            'wind_s': r'Nonoverlapping Windows $\left( \sigma \right)$',
-            'wind_p': r'$P-value$',
-        }, inplace=True,
-    )
-    return group_df
-
-# Define a function to plot the distribution of sequence divergence sites amongst the focal groups.
-def plot_afr_hap_div(gt, arc, obs_label, window_size=72):
-     # Load in the meta information as a pandas dataframe.
-    tgp_df = pd.read_csv(
-        '../meta_data/tgp_mod_arc.txt', sep='\t',
-        names=['IND', 'POP', 'SUPERPOP'],
-    )
-    # Intialize a dictionary for introgressed individuals.
-    int_dicc = {
-        'HET': np.loadtxt(f'../meta_data/{window_size}kb_all_het_int_idx.csv', delimiter=',', dtype=int),
-        'HOM': np.loadtxt(f'../meta_data/{window_size}kb_all_hom_int_idx.csv', delimiter=',', dtype=int),
-    }
-    # Intialize a list of archaics and there indicies.
-    arc_dicc = {
-        'DEN': 'Denisovan', 'ALT': 'Altai Nean.',
-        'CHA': 'Chagyrskaya Nean.', 'VIN': 'Vindija Nean.',
-    }
-    # Intialize a dictionary of group labels.
-    group_labels = {
-        'AFR': 'African Inds.',
-        'HET': 'Heterozygous Inds.',
-        'HOM': 'Homozygous Inds.',
-    }
-    # Intialize ordered population lists.
-    ooa_pops = [
-        'BEB', 'STU', 'ITU', 'PJL', 'GIH', # SAS.
-        'CHB', 'KHV', 'CHS', 'JPT', 'CDX', # EAS.    
-        'TSI', 'CEU', 'IBS', 'GBR', 'FIN', # EUR.
-        'PEL', 'MXL', 'CLM', 'PUR', # AMR.
-    ]
-    afr_pops = ['LWK', 'GWD', 'MSL', 'ESN', 'YRI']
-    # Load the effective sequence lengths.
-    esl_df = load_windows('tgp', 'variant', window_size=window_size)
-    # Intialize dictionaries to store the results.
-    mat_dicc = {
-        'ABS': {
-            'DEN': {}, 'ALT': {}, 'CHA': {}, 'VIN': {},
-        },
-        'NORM': {
-            'DEN': {}, 'ALT': {}, 'CHA': {}, 'VIN': {},
-        },
-    }
-    # For every sequence divergence type...
-    for key_1 in mat_dicc.keys():
-        # For every archaic...
-        for key_2 in mat_dicc[key_1].keys():
-            # Fill the dictionary.
-            mat_dicc[key_1][key_2]['AFR'] = {
-                'M': np.array([]),
-                'W': np.empty((esl_df.shape[0], tgp_df[tgp_df['SUPERPOP'] == 'AFR'].shape[0])),
-            }
-            mat_dicc[key_1][key_2]['HET'] =  {
-                'M': np.array([]),
-                'W': np.empty((esl_df.shape[0], int_dicc['HET'].size)),
-            }
-            mat_dicc[key_1][key_2]['HOM'] =  {
-                'M': np.array([]),
-                'W': np.empty((esl_df.shape[0], int_dicc['HOM'].size)),
-            }
-    # Load the observed, nonoverlapping windows, and window indicies of,
-    # comparable effective sequence length.
-    muc19_dicc = tgp_arc_div(gt, window_size=window_size)
-    wind_dicc = load_tgp_arc_div_windows(window_size=window_size)
-    wind_idx = load_esl_qc_windows_idx('tgp', window_size=window_size)
-    # For every archaic...
-    for key in [arc]:
-        # Intialize a counter for the AFR individuals.
-        afr_c = 0
-        # For every AFR population...
-        for pop in afr_pops:
-            # For every individual...
-            for ind in muc19_dicc['ABS'][key][pop].keys():
-                # If the ind isn't the population average ind...
-                if ind != 'AVG':
-                    # Fill the dictionary.
-                    mat_dicc['ABS'][key]['AFR']['M'] = np.append(
-                        mat_dicc['ABS'][key]['AFR']['M'], muc19_dicc['ABS'][key][pop][ind]['DIV'],
-                    )
-                    mat_dicc['NORM'][key]['AFR']['M'] = np.append(
-                        mat_dicc['NORM'][key]['AFR']['M'], muc19_dicc['NORM'][key][pop][ind]['DIV'],
-                    )
-                    mat_dicc['ABS'][key]['AFR']['W'][:, afr_c] = wind_dicc['ABS'][key][pop][ind]['DIV']
-                    mat_dicc['NORM'][key]['AFR']['W'][:, afr_c] = wind_dicc['NORM'][key][pop][ind]['DIV']
-                    # Move the Africa counter forward.
-                    afr_c += 1
-    # For every archaic...
-    for key in [arc]:
-        # Intialize a counter for the het and hom individuals.
-        het_c = 0
-        hom_c = 0
-        # For every AFR population...
-        for pop in ooa_pops:
-            # For every individual...
-            for ind in muc19_dicc['ABS'][key][pop].keys():
-                # If the ind isn't the population average ind...
-                if ind != 'AVG':
-                    # If this is a het individual...
-                    if muc19_dicc['ABS'][key][pop][ind]['INT'] == 1:
-                        # Fill the dictionary.
-                        mat_dicc['ABS'][key]['HET']['M'] = np.append(
-                            mat_dicc['ABS'][key]['HET']['M'], muc19_dicc['ABS'][key][pop][ind]['DIV'],
-                        )
-                        mat_dicc['NORM'][key]['HET']['M'] = np.append(
-                            mat_dicc['NORM'][key]['HET']['M'], muc19_dicc['NORM'][key][pop][ind]['DIV'],
-                        )
-                        mat_dicc['ABS'][key]['HET']['W'][:, het_c] = wind_dicc['ABS'][key][pop][ind]['DIV']
-                        mat_dicc['NORM'][key]['HET']['W'][:, het_c] = wind_dicc['NORM'][key][pop][ind]['DIV']
-                        # Move the het counter forward.
-                        het_c += 1
-                    # Else-if this is a hom individual.
-                    elif muc19_dicc['ABS'][key][pop][ind]['INT'] == 2:
-                        # Fill the dictionary.
-                        mat_dicc['ABS'][key]['HOM']['M'] = np.append(
-                            mat_dicc['ABS'][key]['HOM']['M'], muc19_dicc['ABS'][key][pop][ind]['DIV'],
-                        )
-                        mat_dicc['NORM'][key]['HOM']['M'] = np.append(
-                            mat_dicc['NORM'][key]['HOM']['M'], muc19_dicc['NORM'][key][pop][ind]['DIV'],
-                        )
-                        mat_dicc['ABS'][key]['HOM']['W'][:, hom_c] = wind_dicc['ABS'][key][pop][ind]['DIV']
-                        mat_dicc['NORM'][key]['HOM']['W'][:, hom_c] = wind_dicc['NORM'][key][pop][ind]['DIV']
-                        # Move the hom counter forward.
-                        hom_c += 1
-    # Determine the significance threshold.
-    sig_threshold = 0.05 / 3
-    # Intialize figures and axes.
-    fig, axes = plt.subplots(
-        1, 3, figsize=(6, 3), dpi=300,
-        sharex=True, sharey=True,
-    )
-    # For every population...
-    for idx in range(len(list(group_labels.keys()))):
-        # Extract the the focal group.
-        group = list(group_labels.keys())[idx]
-        # Compute the means.
-        muc19_mean = np.nanmean(mat_dicc['NORM'][arc][group]['M'])
-        wind_mean = np.nanmean(mat_dicc['NORM'][arc][group]['W'], axis=1)
-        # If this is the homozygous individuals...
-        if (group == 'HOM') & (arc == 'DEN'):
-            # Compute the p-value.
-            wind_p = (np.count_nonzero(muc19_mean >= wind_mean[wind_idx])
-                      / np.sum(~np.isnan(wind_mean[wind_idx])))
-        # Eelse.
-        else:
-            # Compute the p-value.
-            wind_p = (np.count_nonzero(muc19_mean <= wind_mean[wind_idx])
-                      / np.sum(~np.isnan(wind_mean[wind_idx])))
-        # Plot the distribution of heterozygous sites.
-        axes[idx].hist(
-            wind_mean,
-            bins=np.arange(0, 0.005, 0.0001),
-            histtype='stepfilled', color='tab:blue',
-        )
-        # Plot the observed value for muc19.
-        axes[idx].axvline(
-            muc19_mean, 0, 1,
-            color='black', linestyle='dashed',
-        )
-        # If the p-value is significant after correcting for multiple comparisons...
-        if wind_p < sig_threshold:
-            # If the p-value is 0...
-            if wind_p == 0:
-               # Construct the title.
-                title = group_labels[group]+'\n'+r'$P-value=$'+'<3.242e-05'+r'$^{*}$' 
-            # Construct the title.
-            title = group_labels[group]+'\n'+r'$P-value=$'+'{:.3e}'.format(wind_p)+r'$^{*}$'
-        # Else...
-        else:
-            # Construct the title.
-            title = group_labels[group]+'\n'+r'$P-value=$'+'{:.3e}'.format(wind_p)+r'$^{ns}$'
-        # Add the subplot title.
-        axes[idx].set_title(title)
-    # Configure the legend.
-    legend_elements = [
-        Line2D([0], [0], color='black', linestyle='dashed', label=obs_label),
-    ]
-    # Add a figure legend.
-    fig.legend(
-        handles=legend_elements, loc='center left',
-        bbox_to_anchor=(1.0, 0.5), frameon=False,
-    )
-    # Label the super-axes.
-    fig.supylabel('Frequency')
-    fig.supxlabel(f'Sequence Divergence from the {arc_dicc[arc]} in {window_size}kb Windows')
-    # Show the plot!
-    plt.show()
-    return
-
-# Define a function to (AFR, NEA) - DEN divergence for muc19.
-def afr_alt_den_div(gt, den_like_idx, window_size=72):
-     # Load in the meta information as a pandas dataframe.
-    tgp_df = pd.read_csv(
-        '../meta_data/tgp_mod_arc.txt', sep='\t',
-        names=['IND', 'POP', 'SUPERPOP'],
-    )
-    # Intialize a dictionary to store all sample indicies.
-    samp_idx_dicc = { 
-        'AFR': tgp_df[tgp_df['SUPERPOP'] == 'AFR'].index.values,
-        'ALT': np.array([2347]), 'DEN': np.array([den_like_idx]),
-    }
-    # Load the muc19 effective sequence lengths.
-    esl_mat = load_hap_esl_mat(prefix='arc_and_tgp', window_size=window_size)
-    # If the index in the sequenced Denisovan...
-    if den_like_idx == 2350:
-        # Extract the TGP+ALT+DEN effective sequence length.
-        esl = esl_mat[1, 4]
-    # Else..
-    else:
-        # Extract the TGP+ALT effective sequence length.
-        esl = esl_mat[1, 0]
-    # Intialize a dictionary to store the results.
-    div_dicc = {
-        'ABS': {}, 'NORM': {},
-    }
-    # Concatenate the sample list.
-    samp_list = np.concatenate([
-        samp_idx_dicc['AFR'], samp_idx_dicc['ALT'], samp_idx_dicc['DEN'],
-    ])
-    # Determine the indicies where all samples are called.
-    called_mask = (gt.take(samp_list, axis=1).is_called() == True).all(axis=1)
-    # If there are no sites called between all three samples...
-    if (called_mask.sum() == 0):
-        # Set the results to 0 since we are iterating over QC'ed regions.
-        div_dicc['ABS']['DER'] = 0
-        div_dicc['NORM']['DER'] = 0
-        div_dicc['ABS']['ANC'] = 0
-        div_dicc['NORM']['ANC'] = 0
-    # Else...
-    else:
-        # Determine the indicies where we have varibale sites.
-        var_mask = gt.take(samp_list, axis=1).compress(called_mask, axis=0).count_alleles().is_variant()
-        # If there are no variable sites...
-        if (var_mask.sum() == 0):
-            # Set the results to 0 since we are iterating over QC'ed regions.
-            div_dicc['ABS']['DER'] = 0
-            div_dicc['NORM']['DER'] = 0
-            div_dicc['ABS']['ANC'] = 0
-            div_dicc['NORM']['ANC'] = 0
-        # Else...
-        else:
-            # Calculate alternative allele frequencies.
-            afr_alt_freq = calc_alt_freqs(
-                gt.take(samp_idx_dicc['AFR'], axis=1,
-                       ).compress(called_mask, axis=0).compress(var_mask, axis=0),
-            )
-            alt_alt_freq = calc_alt_freqs(
-                gt.take(samp_idx_dicc['ALT'], axis=1,
-                       ).compress(called_mask, axis=0).compress(var_mask, axis=0),
-            )
-            den_alt_freq = calc_alt_freqs(
-                gt.take(samp_idx_dicc['DEN'], axis=1,
-                       ).compress(called_mask, axis=0).compress(var_mask, axis=0),
-            )
-            anc_freq = calc_alt_freqs(gt.take([-1], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0))
-            # Polarize the samples.
-            afr_der_freq = np.where(anc_freq == 1, np.abs(afr_alt_freq - 1), afr_alt_freq)
-            alt_der_freq = np.where(anc_freq == 1, np.abs(alt_alt_freq - 1), alt_alt_freq)
-            den_der_freq = np.where(anc_freq == 1, np.abs(den_alt_freq - 1), den_alt_freq)
-            # Determine the number of sites where the derived allele is segregating at 95%
-            # frequncy or higher in AFR, fixed in ALT, and absent in DEN.
-            der_div = np.where((afr_der_freq >= 0.95) & (alt_der_freq == 1.0) & (den_der_freq == 0.0))[0].size
-            # Determine the number of sites where the derived allele is segregating at 5%
-            # frequncy or less in AFR, absent in ALT, and fixed in DEN.
-            anc_div = np.where((afr_der_freq <= 0.05) & (alt_der_freq == 0.0) & (den_der_freq == 1.0))[0].size
-            # Compile the results.
-            div_dicc['ABS']['DER'] = der_div
-            div_dicc['NORM']['DER'] = der_div / esl
-            div_dicc['ABS']['ANC'] = anc_div
-            div_dicc['NORM']['ANC'] = anc_div / esl
-    return div_dicc
-
-# Define a function to load the (AFR, NEA) - DEN window data.
-def load_afr_alt_den_div_windows(sample, pop, window_size=72):
-    # Intialize a dictionary to store the results.
-    div_dicc = {
-        'ABS': {'DER': np.array([]), 'ANC': np.array([])},
-        'NORM': {'DER': np.array([]), 'ANC': np.array([])}
-    }
-    # Load the effective sequence lengths.
-    esl_df = load_windows('tgp', 'variant', window_size=window_size)
-    # If we are loading the results for the sequenced Denisovan...
-    if sample == 'den':
-        # Extract the TGP+ALT+DEN effective sequence length.
-        esl_type = 'DEN-ALT'
-    # Else...
-    else:
-        # Extract the TGP+ALT effective sequence length.
-        esl_type = 'ALT'
-    # For all chromosomes...
-    for chrom in range(1, 23):
-        # Load the divergence data.
-        div = np.loadtxt(
-            f'../sequence_divergence/afr_alt_den/windows/afr_alt_{sample}_{pop}_chr{chrom}_{window_size}kb.csv.gz',
-            delimiter=',',
-        )
-        # Extract the effective sequence lengths.
-        esl = esl_df[esl_df['CHR'] == chrom][esl_type].values
-        # Fill the dictionary.
-        div_dicc['ABS']['DER'] = np.append(div_dicc['ABS']['DER'], div[:, 0])
-        div_dicc['ABS']['ANC'] = np.append(div_dicc['ABS']['ANC'], div[:, 1])
-        div_dicc['NORM']['DER'] = np.append(div_dicc['NORM']['DER'], (div[:, 0] / esl))
-        div_dicc['NORM']['ANC'] = np.append(div_dicc['NORM']['ANC'], (div[:, 1]/ esl))
-    return div_dicc
-
-# Define a function to compile and summarize the (AFR, NEA) - DEN results.
-def compile_afr_alt_den_summary(gt, window_size=72):
-    # Load in the meta information as a pandas dataframe.
-    tgp_df = pd.read_csv(
-        '../meta_data/tgp_mod_arc.txt', sep='\t',
-        names=['IND', 'POP', 'SUPERPOP'],
-    )
-    # Extract all samples and populations.
-    tgp_ind = tgp_df['IND'].values
-    tgp_pop = tgp_df['POP'].values
-    # Intialize a dictionary to store the results.
-    df_dicc = {
-        'ind': [], 'pop': [], 'cond': [],
-        'muc19_a': [], 'muc19_n': [],
-        'wind_m': [], 'wind_s': [],
-        'wind_p': [],
-    }
-    # Intialize a conditions dictionary.
-    cond_dicc = {
-        'DER': '((AFR >= 95%, ALT = 1/1), DEN = 0/0)',
-        'ANC': '((AFR <= 5%, ALT = 0/0), DEN = 1/1)',
-    }
-    # Determine the observed values for the Denisovan.
-    den_muc19 = afr_alt_den_div(gt, 2350, window_size=window_size)
-    # Load the non-overlaping windows results for the Denisovan.
-    den_wind = load_afr_alt_den_div_windows('den', 'den', window_size=window_size)
-    # Load the window indicies that passed the QC'ing process.
-    wind_idx = load_esl_qc_windows_idx('tgp', window_size=window_size)
-    # For each conditional divergent site...
-    for cond in ['DER', 'ANC']:
-        # Determine the mean and standard deviation for non-overlapping windows.
-        wind_m = np.nanmean(den_wind['ABS'][cond][wind_idx])
-        wind_s = np.nanstd(den_wind['ABS'][cond][wind_idx])
-        # Compute the p-values.
-        wind_p = (np.count_nonzero(den_muc19['ABS'][cond] <= den_wind['ABS'][cond][wind_idx])
-                  / np.sum(~np.isnan(den_wind['ABS'][cond][wind_idx])))
-        # Fill the dictionary.
-        df_dicc['ind'].append('DEN')
-        df_dicc['pop'].append('ARC')
-        df_dicc['cond'].append(cond_dicc[cond])
-        df_dicc['muc19_a'].append(den_muc19['ABS'][cond])
-        df_dicc['muc19_n'].append(den_muc19['NORM'][cond])
-        df_dicc['wind_m'].append(wind_m)
-        df_dicc['wind_s'].append(wind_s)
-        df_dicc['wind_p'].append(wind_p)
-    # Convert the dictionary to a dataframe.
-    div_df = pd.DataFrame(data=df_dicc)
-    # Adjust p-values of 0 by the number of permutations.
-    div_df['wind_p'] = np.where(div_df['wind_p'] == 0, '<3.242e-05', div_df['wind_p'])
-    # Rename all the columns to look pretty.
-    div_df.rename(
-        columns={
-            'ind': 'Individual', 'pop': 'Population', 'cond': 'Divergence Metric',
-            'muc19_a': r'$MUC19$ (Raw)', 'muc19_n': r'$MUC19$ (Normalized)',
-            'wind_m': r'Nonoverlapping Windows $\left( \mu \right)$',
-            'wind_s': r'Nonoverlapping Windows $\left( \sigma \right)$',
-            'wind_p': r'$P-value$',
-        }, inplace=True,
-    )
-    return div_df
-
-# Define a function to plot (AFR, ALT) - DEN Divergence.
-def plot_afr_alt_den_summary(gt, obs_label, window_size=72):
-    # Determine the observed values for the Denisovan.
-    den_muc19 = afr_alt_den_div(gt, 2350, window_size=window_size)
-    # Load the non-overlaping windows results for the Denisovan.
-    den_wind = load_afr_alt_den_div_windows('den', 'den', window_size=window_size)
-    # Load the window indicies that passed the QC'ing process.
-    wind_idx = load_esl_qc_windows_idx('tgp', window_size=window_size)
-    # Determine the significance threshold.
-    sig_threshold = 0.05 / 17
-    # Define a condition's list.
-    conds = ['DER', 'ANC']
-    # Intialize figures and axes.
-    fig, axes = plt.subplots(
-        1, 2, figsize=(8, 4), dpi=300,
-        sharex=False, sharey=False,
-    )
-    # For every condition...
-    for idx in range(len(conds)):
-        # Extract the condition.
-        cond = conds[idx]
-        # Compute the p-value.
-        wind_p = (np.count_nonzero(den_muc19['ABS'][cond] <= den_wind['ABS'][cond][wind_idx])
-                  / np.sum(~np.isnan(den_wind['ABS'][cond][wind_idx])))
-        # Plot the distribution.
-        axes[idx].hist(
-            den_wind['ABS'][cond],
-            bins=np.arange(min(den_wind['ABS'][cond]), max(den_wind['ABS'][cond]) + 1, 1),
-            histtype='stepfilled', color='tab:blue',
-        )
-        # If the p-value is significant after correcting for multiple comparisons...
-        if wind_p < sig_threshold:
-            # If the p-value is 0...
-            if wind_p == 0:
-                # Construct the title.
-                title = r'$P-value=$'+'<3.242e-05'+r'$^{*}$'
-            # Else...
-            else:
-                # Construct the title.
-                title = r'$P-value=$'+'{:.3e}'.format(wind_p)+r'$^{*}$'
-        # Else...
-        else:
-            # Construct the title.
-            title = r'$P-value=$'+'{:.3e}'.format(wind_p)+r'$^{ns}$'
-        # Add a subplot title.
-        axes[idx].set_title(title)
-    # Plot the observed values.
-    axes[0].axvline(
-        den_muc19['ABS']['DER'], 0, 1,
-        color='black', linestyle='dashed',
-    )
-    axes[1].axvline(
-        den_muc19['ABS']['ANC'], 0, 1, label=obs_label,
-        color='black', linestyle='dashed',
-    )
-    # Add a figure legend.
-    fig.legend(loc='center left', bbox_to_anchor=(1.0, 0.5), frameon=False)    
-    # Label the axes.
-    axes[0].set_ylabel('Frequency')
-    axes[0].set_xlabel(f'((AFR >= 95%, ALT = 1/1), DEN = 0/0) Sites in {window_size}kb Windows')
-    axes[1].set_xlabel(f'((AFR <= 5%, ALT = 0/0), DEN = 1/1) Sites in {window_size}kb Windows')
-    # Show the plot!
-    plt.show()
-    return
-
-
-##############################
-### SUP -> DEN SIMULATIONS ###
-##############################
-
-# Define a function to plot the simulated distributions.
-def plot_sup2den_v_afr2nea_1d(dicc, t_div):
-    # Intialize a dictionary for plotting.
-    plot_dicc = {}
-    # Intialize effective population sizes and introgression times.
-    configs = [
-        (2500, 3400, 2.5),
-        (3400, 2500, 2.5),
-        (2500, 3400, 3.0),
-        (3400, 2500, 3.0),
-    ]
-    # Consolidate the results for plotting.
-    for metric in range(2):
-        plot_dicc[metric] = []
-        for config in configs:
-            nea_ne, den_ne, t_intro = config
-            dist = dicc[t_intro][t_div][(nea_ne, den_ne)][:, metric]
-            nan_mask = np.isnan(dist)
-            plot_dicc[metric].append(dist[~nan_mask])
-    # Intialize a label list.
-    label_list = []
-    # For every configuration.
-    for config in configs:
-        # Unpack and fill the label list.
-        nea_ne, den_ne, t_intro = config
-        nea = r'$N_{e}$'+' (NEA) = {0}'.format(nea_ne)
-        den = r'$N_{e}$'+' (DEN) = {0}'.format(den_ne)
-        years = int(t_intro * 100)
-        tgf = r'$t_{gf}$'+' = {0}kya'.format(years)
-        label_list.append(nea+'\n'+den+'\n'+tgf)
-    # Intialize a metric dictionary.
-    metric_dicc = {
-        0: {'obs': 66, 'label': '((AFR >= 95%, Altai Nean. = 1/1), Denisovan = 0/0)'},
-        1: {'obs': 99, 'label': '((AFR <= 5%, Altai Nean. = 0/0), Denisovan = 1/1)'},
-    }
-    # Intialize the figure and axes.
-    fig, axes = plt.subplots(
-        1, 2, figsize=(12, 6), dpi=300,
-        sharex=True, sharey=True,
-    )
-    # Intialize positions and index counter.
-    y_pos = np.arange(0, (4 * 2), 2)[::-1]
-    # Intialize a function for plotting the alternating background.
-    def alt_bands(ax=None):
-        locs = np.arange(2, (4 * 2), 4)[::-1]
-        for loc in locs:
-            ax.axhspan(loc-1, loc+1, facecolor='black', alpha=0.1)
-    # For each metric.
-    for key in plot_dicc.keys():
-        # Plot the background.
-        alt_bands(ax=axes[key])
-        # Adjust the y-axis limits.
-        axes[key].set_ylim(-1, (4 * 2) -1)
-        # Plot the simulated results.
-        vp = axes[key].violinplot(
-            plot_dicc[key], y_pos, vert=False,
-            widths=1.5, showextrema=False,
-        )
-        # For every patch body...
-        for i, body in enumerate(vp['bodies']):
-            # Modify it so we only see the upper half of the violin plot
-            body.get_paths()[0].vertices[:, 1] = np.clip(
-                body.get_paths()[0].vertices[:, 1], y_pos[i], y_pos[i] + 2,
-            )
-            # Change to the desired color
-            body.set_color('tab:blue')
-        # For every distribution...
-        for i, dist in enumerate(plot_dicc[key]):
-            # Generate a new position per data point.
-            j = np.full(dist.size, y_pos[i] - 0.5).astype(float)
-            k = np.arange(j.size)
-            j.flat[k] += np.random.uniform(low=-0.25, high=0.25, size=k.size)
-            new_pos = j
-            # Plot the jitter.
-            axes[key].scatter(
-                dist, new_pos, color='tab:blue',
-                marker='o', facecolor='none', s=3.5, alpha=0.35,
-            )
-        # Plot the observed value.
-        axes[key].axvline(
-            metric_dicc[key]['obs'], 0, 1,
-            color='black', linestyle='dashed',
-            linewidth=1,
-        )
-        # Set the y-axis tick positions and labels.
-        axes[key].set_yticks(y_pos)
-        axes[key].set_yticklabels(
-            label_list, size=8,
-        )
-        # Label the axes.
-        axes[key].set_xlabel(metric_dicc[key]['label'])
-    # Construct the legend
-    legend_elements = [
-        Line2D([0], [0], color='black', linestyle='dashed', label='Observed Value'),
-    ]
-    # Add a figure lgend.
-    axes[1].legend(
-        handles=legend_elements, loc='center left',
-        bbox_to_anchor=(1.0, 0.5), frameon=False,
-    )
-    # Add a title.
-    tdiv = r'$t_{div}$'+' = {0}mya'.format(t_div)
-    fig.suptitle(tdiv, size=10)
-    # Show the plot.
-    plt.show()
-    return
-

@@ -20,7 +20,6 @@ Code associated with Villanea and Peede et. al. 202X.
 │       └── slim
 ├── sequence_divergence
 ├── site_patterns
-├── sup_intro_sims
 ├── vcf_data
 ├── vntr
 └── windowing
@@ -37,7 +36,6 @@ Code associated with Villanea and Peede et. al. 202X.
 - `pbs_sims`
 - `sequence_divergence`
 - `site_patterns`
-- `sup_intro_sims`
 - `vcf_data`
 - `vntr`
 - `windowing`

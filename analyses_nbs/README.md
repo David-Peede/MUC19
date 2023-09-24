@@ -14,11 +14,17 @@ All packages are publicly available and their documentation can be viewed at the
 
 ## Code
 
-__Create the `meta_data` directory since GitHub only allows for 100Mb of storage.__
+__Create the `meta_data`, `dataframes`, `supp_figures`, and `supp_tables` directories since GitHub only allows for 100Mb of storage.__
 
 ```bash
 # Extract the meta_data directory.
 tar -xf meta_data.tar.gz
+# Extract the dataframes directory.
+tar -xf dataframes.tar.gz
+# Extract the supp_figures directory.
+tar -xf supp_figures.tar.gz
+# Extract the supp_tables directory.
+tar -xf supp_tables.tar.gz
 ```
 
 __Run the code necessary to generate any other input files, which can be found in the `README.md` of each directory.__
