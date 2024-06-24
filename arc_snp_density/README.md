@@ -12,12 +12,12 @@ All packages are publicly available and their documentation can be viewed at the
 
 ## Code
 
-__Compute archaic SNP density in non-overlapping windows.__
+__Compute archaic SNP density in non-overlapping windows across the autosomes.__
 
 ```bash
-# Compute the archaic SNP density in non-overlapping 72kb windows.
-for CHR in {1..22}; do
-python tgp_arc_snp_density_windows.py ${CHR} 72
-done
+# Compute the archaic snp denisty for all non-AFR populations in non-overlapping windows.
+for CHR in {1..22}; do for WIND in 72 742; do
+python tgp_archaic_snp_denisty_windows_v_revisions.py ${CHR} ${WIND}
+done; done
 ```
 
