@@ -8,21 +8,18 @@ import zarr
 
 ### sys.argv[1] = chromosome ###
 ### sys.argv[2] = window size ###
-### sys.argv[3] = p1 ###
-### sys.argv[4] = p2 ###
-### sys.argv[5] = p3 ###
 
 
 # Define a function to load genotyope and positions arrays.
 def load_callset_pos(prefix, chrom):
     # Intialize the file path.
-    path = '../vcf_data/zarr_data/{0}_chr{1}.zarr'.format(prefix, chrom)
+    path = f'../zarr_data/{prefix}_chr{chrom}.zarr'
     # Load the zarr array.
     zarr_array = zarr.open_group(path, mode='r')
     # Extract the genotype callset.
-    callset = zarr_array['{0}/calldata/GT'.format(chrom)]
+    callset = zarr_array[f'{chrom}/calldata/GT']
     # Load the positions.
-    pos = allel.SortedIndex(zarr_array['{0}/variants/POS'.format(chrom)])
+    pos = allel.SortedIndex(zarr_array[f'{chrom}/variants/POS'])
     return callset, pos
 
 # Define a site pattern function.
@@ -36,16 +33,12 @@ def site_patterns(p1, p2, p3):
     aaba = np.sum((1 - p1) * (1 - p2) * (p3))
     return abba, baba, bbaa, baaa, abaa, aaba
 
-# Define a function to calculate alternative allele frequencies.
-def calc_alt_freqs(gt):
-    # If there are no altenative alleles...
-    if (gt.count_alleles().shape[1] == 1):
-        # Calculate alternative allele frequencies.
-        alt_freqs = gt.count_alleles().to_frequencies()[:, 0] - 1
-    # Else...
-    else:
-        # Calculate alternative allele frequencies.
-        alt_freqs = gt.count_alleles().to_frequencies()[:, 1]
+# Define a function to calculate alternative allele frequencies for a single individual.
+def calc_ind_alt_freqs(gt):
+    # Compute the frequency for each site.
+    raw_freqs = np.nansum(gt, axis=2).flatten() / 2
+    # Set missing data to Nan
+    alt_freqs = np.where(raw_freqs == -1, np.nan, raw_freqs)
     return alt_freqs
 
 # Define a function to filter and calculate site pattern counts for the archaics.
@@ -66,7 +59,7 @@ def arc_site_patterns(gt, p1, p2, p3):
     # Else...
     else:
         # Determine the indicies where we have varibale sites.
-        var_mask = gt.take(samp_list, axis=1).compress(called_mask, axis=0).count_alleles().is_variant()
+        var_mask = gt.take(samp_list, axis=1).compress(called_mask, axis=0).count_alleles().is_segregating()
         # If there are no variable sites...
         if (var_mask.sum() == 0):
             # Set the results to 0 since we are iterating over QC'ed regions.
@@ -74,10 +67,10 @@ def arc_site_patterns(gt, p1, p2, p3):
         # Else...
         else:
             # Calculate the alternative allele frequencies.
-            p1_alt_freqs = calc_alt_freqs(gt.take([idx_dicc[p1]], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0))
-            p2_alt_freqs = calc_alt_freqs(gt.take([idx_dicc[p2]], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0))
-            p3_alt_freqs = calc_alt_freqs(gt.take([idx_dicc[p3]], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0))
-            anc_freqs = calc_alt_freqs(gt.take([-1], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0))
+            p1_alt_freqs = calc_ind_alt_freqs(gt.take([idx_dicc[p1]], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0))
+            p2_alt_freqs = calc_ind_alt_freqs(gt.take([idx_dicc[p2]], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0))
+            p3_alt_freqs = calc_ind_alt_freqs(gt.take([idx_dicc[p3]], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0))
+            anc_freqs = calc_ind_alt_freqs(gt.take([-1], axis=1).compress(called_mask, axis=0).compress(var_mask, axis=0))
             # Polarize the samples.
             p1_der_freqs = np.where(anc_freqs == 1, np.abs(p1_alt_freqs - 1), p1_alt_freqs)
             p2_der_freqs = np.where(anc_freqs == 1, np.abs(p2_alt_freqs - 1), p2_alt_freqs)
@@ -91,11 +84,11 @@ def arc_site_patterns(gt, p1, p2, p3):
     return results
 
 # Define a function to calculate archaic site patterns in windows.
-def arc_site_patterns_windows(chromosome, window_size, p1_arc, p2_arc, p3_arc):
+def archaic_site_patterns_windows(chromosome, window_size):
     # Extract the genotype callset and positions.
-    callset, all_pos = load_callset_pos('arc_anc', chromosome)
+    callset, all_pos = load_callset_pos('arcs_masked_aa', chromosome)
     # Load the windows data frame.
-    qc_windows_df = pd.read_csv('../windowing/arc/{0}kb_nonoverlapping_variant_windows.csv.gz'.format(window_size))
+    qc_windows_df = pd.read_csv(f'../windowing/arcs_masked_aa/{window_size}kb_nonoverlapping_variant_windows.csv.gz')
     # Subset the the windows for the chromosome.
     chr_qc_windows_df = qc_windows_df[qc_windows_df['CHR'] == chromosome]
     # Extract the start and stop positions.
@@ -103,33 +96,45 @@ def arc_site_patterns_windows(chromosome, window_size, p1_arc, p2_arc, p3_arc):
     chr_stops = chr_qc_windows_df['STOP'].values
     # Determine the number of windows.
     n_windows = chr_qc_windows_df.shape[0]
-    # Intialize a results matrix to store the results.
-    results_mat = np.empty((n_windows, 6))
-    # For every window...
+    # Intialize a list of site pattern configurations.
+    config_list = [
+        ('ALT', 'CHA', 'DEN'),
+        ('ALT', 'VIN', 'DEN'),
+        ('CHA', 'VIN', 'DEN'),
+        ('CHA', 'VIN', 'ALT'),
+    ]
+    # Intialize a dictionary to store the results.
+    sp_dicc = {}
+    # For every site pattern configuration.
+    for config in config_list:
+        # Intialize a results matrix to store the results.
+        sp_dicc[config] = np.empty((n_windows, 6))
+    # For every window.
     for wind in range(n_windows):
             # Locate the window.
             wind_loc = all_pos.locate_range(chr_starts[wind], chr_stops[wind])
-            # Append the result matrix.
-            results_mat[wind, :] = arc_site_patterns(
-                gt=allel.GenotypeArray(callset[wind_loc]),
-                p1=p1_arc, p2=p2_arc, p3=p3_arc,
-            )
-    # Compile the results file name.
-    results_file = '{0}_{1}_{2}_chr{3}_{4}kb.csv.gz'.format(
-        p1_arc.lower(), p2_arc.lower(), p3_arc.lower(), chromosome, window_size,
-    )
-    # Export the the results matrix.
-    np.savetxt(
-        './arc/windows/'+results_file,
-        results_mat, fmt='%1.15f', delimiter=',', newline='\n',
-    )
+            # For every site pattern configuration.
+            for config in config_list:
+                # Unpack.
+                p1_arc, p2_arc, p3_arc = config
+                # Append the result matrix.
+                sp_dicc[config][wind, :] = arc_site_patterns(
+                    gt=allel.GenotypeArray(callset[wind_loc]),
+                    p1=p1_arc, p2=p2_arc, p3=p3_arc,
+                )
+    # For every site pattern configuration.
+    for config in config_list:
+        # Unpack.
+        p1_arc, p2_arc, p3_arc = config
+        # Export the the results matrix.
+        np.savetxt(
+            f'../muc19_results/arcs_masked_aa/{p1_arc.lower()}_{p2_arc.lower()}_{p3_arc.lower()}_chr{chromosome}_{window_size}kb.txt.gz',
+            sp_dicc[config], fmt='%1.15f',
+        )
     return
 
 # Calculate site pattern counts in windows.
-arc_site_patterns_windows(
+archaic_site_patterns_windows(
     chromosome=int(sys.argv[1]),
     window_size=int(sys.argv[2]),
-    p1_arc=str(sys.argv[3]),
-    p2_arc=str(sys.argv[4]),
-    p3_arc=str(sys.argv[5]),
 )
