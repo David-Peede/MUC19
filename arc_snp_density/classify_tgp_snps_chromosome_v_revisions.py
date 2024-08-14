@@ -7,7 +7,6 @@ import sys
 import zarr
 
 ### sys.argv[1] = chromosome ###
-### sys.argv[2] = non-afr population ###
 
 
 # Define a function to load genotyope and positions arrays.
@@ -22,8 +21,6 @@ def load_gt_pos(prefix, chrom):
     pos = allel.SortedIndex(zarr_array[f'{chrom}/variants/POS'])
     # Convert the genotype callset to an array.
     gt = allel.GenotypeArray(callset)
-    # Load the positions.
-    pos = allel.SortedIndex(zarr_array['{0}/variants/POS'.format(chrom)])
     return gt, pos
 
 # Define a function to calculate alternative allele frequencies.
@@ -46,8 +43,24 @@ def calc_ind_alt_freqs(gt):
     alt_freqs = np.where(raw_freqs == -1, np.nan, raw_freqs)
     return alt_freqs
 
-# Define a function to find the number of archaic snps.
-def find_arc_alleles(gt, pop_dicc, ooa_pop, ooa_freq):
+# Define a function to classify the snp types.
+def tgp_classify_snps(gt, ooa_pop, ooa_freq):
+     # Load in the meta information as a pandas dataframe.
+    tgp_df = pd.read_csv(
+        '../meta_data/tgp_mod.txt', sep='\t',
+        names=['IND', 'POP', 'SUPERPOP'],
+    )
+    # Intialize a dictionary to store all sample indicies.
+    pop_dicc = {
+        'ALT': np.array([2347]), 'CHA': np.array([2348]),
+        'VIN': np.array([2349]), 'DEN': np.array([2350]),
+        'AFR': tgp_df[tgp_df['SUPERPOP'] == 'AFR'].index.values,
+        'OOA': tgp_df[tgp_df['SUPERPOP'] != 'AFR'].index.values
+    }
+    # For every population...
+    for pop in tgp_df['POP'].unique():
+        # Append the dictionary with sample indicies.
+        pop_dicc[pop] = tgp_df[tgp_df['POP'] == pop].index.values
     # Calculate alternative allele frequencies.
     afr_alt_freq = calc_alt_freqs(gt.take(pop_dicc['AFR'], axis=1))
     ooa_alt_freq = calc_alt_freqs(gt.take(pop_dicc[ooa_pop], axis=1))
@@ -55,6 +68,12 @@ def find_arc_alleles(gt, pop_dicc, ooa_pop, ooa_freq):
     cha_alt_freq = calc_ind_alt_freqs(gt.take(pop_dicc['CHA'], axis=1))
     vin_alt_freq = calc_ind_alt_freqs(gt.take(pop_dicc['VIN'], axis=1))
     den_alt_freq = calc_ind_alt_freqs(gt.take(pop_dicc['DEN'], axis=1))
+    # Compute allele frequencies.
+    arc_freqs = calc_alt_freqs(gt.take([2347, 2348, 2349, 2350], axis=1))
+    tgp_freqs = calc_alt_freqs(gt.take(np.arange(0, 2347), axis=1))
+    # Determine the sites that are invariant invariant.
+    arc_invar_mask = (arc_freqs == 0) | np.isnan(arc_freqs)
+    tgp_invar_mask = (tgp_freqs == 0) | np.isnan(tgp_freqs)
     # Intialize the conditions.
     c_ref_hum = ((1 - afr_alt_freq) < 0.01) & ((1 - ooa_alt_freq) > ooa_freq)
     c_ref_den = (den_alt_freq == 0)
@@ -89,50 +108,75 @@ def find_arc_alleles(gt, pop_dicc, ooa_pop, ooa_freq):
     nea_only_alt_mask = c_alt_hum & c_alt_not_den & c_alt_nea
     shared_alt_mask = c_alt_hum & c_alt_shared
     arc_alt_mask = den_only_alt_mask | nea_only_alt_mask | shared_alt_mask
-    # Construct a dictionary.
+    # Construct the archaic snps dictionary.
     arc_dicc = {
         'DEN': (den_only_ref_mask | den_only_alt_mask),
         'NEA': (nea_only_ref_mask | nea_only_alt_mask),
         'SHR': (shared_ref_mask | shared_alt_mask),
         'ARC': (arc_ref_mask | arc_alt_mask),
     }
-    return arc_dicc
+    # Construct the human snp dictionary.
+    hum_dicc = {
+        'HUM': arc_invar_mask & ~tgp_invar_mask,
+        'HOM': (~arc_invar_mask & ~arc_dicc['ARC']) | (arc_invar_mask & tgp_invar_mask),
+        ## HOM accounts for the fact that some sites are encoded in the TGP as variant but are actually only,
+        ## variant when you consider the related individuals who are in a seperate vcf.
+    }
+    # Construct the snp dictionary.
+    snp_dicc = {**arc_dicc, **hum_dicc}
+    return arc_dicc, hum_dicc, snp_dicc
 
-# Define a function to identify the archaic specific snps for a non-AFR population.
-def identify_archaic_snps_chromosome(chrom, pop):
-    # Load in the meta information as a pandas dataframe.
-    meta_df = pd.read_csv(
-        '../meta_data/tgp_mod.txt', sep='\t',
-        names=['IND', 'POP', 'SUPERPOP'],
-    )
+# Define a function to identify the archaic specific snps for all non-AFR populations.
+def classify_snps_chromosome(chrom):
+    # Intialize a list of focal populations.
+    ooa_list = [
+        'MXL', 'PEL', 'CLM', 'PUR', # AMR.
+        'BEB', 'STU', 'ITU', 'PJL', 'GIH', # SAS.
+        'CHB', 'KHV', 'CHS', 'JPT', 'CDX', # EAS.    
+        'TSI', 'CEU', 'IBS', 'GBR', 'FIN', # EUR.
+    ]
     # Intialize the snp-type dictionary.
     snp_type_dicc = {
         'DEN': 'denisovan_specific_snps',
         'NEA': 'neanderthal_specific_snps',
         'SHR': 'shared_archaic_snps',
         'ARC': 'archaic_specific_snps',
-    }
-    # Intialize a dictionary to store all sample indicies.
-    samp_idx_dicc = {
-        f'{pop}': meta_df[meta_df['POP'] == pop].index.values,
-        'AFR': meta_df[meta_df['SUPERPOP'] == 'AFR'].index.values,
-        'OOA': meta_df[meta_df['SUPERPOP'] != 'AFR'].index.values,
-        'ALT': np.array([2347]), 'CHA': np.array([2348]),
-        'VIN': np.array([2349]), 'DEN': np.array([2350]),
+        'HUM': 'human_specific_snps',
+        'HOM': 'shared_hominin_snps',
     }
     # Extract the genotype callset and positions.
     gt, pos = load_gt_pos('tgp_arcs_masked_no_aa', chrom)
-    # Generate the archaic specific masks.
-    arc_masks = find_arc_alleles(gt=gt, pop_dicc=samp_idx_dicc, ooa_pop=pop, ooa_freq=0.01)
+    # Intialize a dictionary to store the non-AFR results.
+    global_dicc = {
+        'DEN': np.full(pos.size, False),
+        'NEA': np.full(pos.size, False),
+        'ARC': np.full(pos.size, False),
+        'SHR': np.full(pos.size, False),
+        'HUM': np.full(pos.size, False),
+        'HOM': np.full(pos.size, False),
+    }
+    # For every non-AFR population.
+    for pop in ooa_list:
+        # Classify each snp.
+        _, _, snp_masks = tgp_classify_snps(gt=gt, ooa_pop=pop, ooa_freq=0.01)
+        # For every archaic snp type.
+        for snp_type in snp_masks:
+            # Update the global results.
+            global_dicc[snp_type] |= snp_masks[snp_type]
+            # Export the population results.
+            np.savetxt(
+                f'../muc19_results/tgp_arcs_masked_no_aa/{pop.lower()}_{snp_type_dicc[snp_type]}_chr{chrom}.txt.gz',
+                [pos[snp_masks[snp_type]]], fmt='%d',
+            )
     # For every archaic snp type.
     for snp_type in snp_type_dicc:
         # Export the results.
         np.savetxt(
-            f'../muc19_results/tgp_arcs_masked_no_aa/{pop.lower()}_{snp_type_dicc[snp_type]}_chr{chrom}.txt.gz',
-            [pos[arc_masks[snp_type]]], fmt='%d',
+            f'../muc19_results/tgp_arcs_masked_no_aa/tgp_{snp_type_dicc[snp_type]}_chr{chrom}.txt.gz',
+            [pos[global_dicc[snp_type]]], fmt='%d',
         )
     return
 
 
 # Determine what poistions are archaic snps.
-identify_archaic_snps_chromosome(chrom=int(sys.argv[1]), pop=str(sys.argv[2]))
+classify_snps_chromosome(chrom=int(sys.argv[1]))
