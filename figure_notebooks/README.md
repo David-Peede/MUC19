@@ -1,4 +1,4 @@
-# `figure_nbs`
+# `figure_notebooks`
 
 This directory contains the code to replicate the main figures from this study.
 
@@ -19,3 +19,5 @@ __Create the `data` directory since GitHub only allows for 100Mb of storage. Not
 # Extract the data directory.
 tar -xf data.tar.gz
 ```
+
+The resulting outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `figure_notebooks/main_figures`.
