@@ -54,8 +54,8 @@ def tgp_het_windows(chromosome, window_size):
     # Intialize a dictionary of sample indicies.
     samp_idx_dicc = {
         'AFR': tgp_meta_df[tgp_meta_df['SUPERPOP'] == 'AFR'].index.values,
-        'HET': np.loadtxt('../meta_data/72kb_all_het_int_idx.csv', delimiter=',', dtype=int),
-        'HOM': np.loadtxt('../meta_data/72kb_all_hom_int_idx.csv', delimiter=',', dtype=int),
+        'HET': np.loadtxt('../meta_data/tgp_het_den_like_ind_idx_72kb.txt.gz', dtype=int),
+        'HOM': np.loadtxt('../meta_data/tgp_hom_den_like_ind_idx_72kb.txt.gz', dtype=int),
     }
     # Extract the genotype callset and positions.
     callset, all_pos = load_callset_pos('tgp_mod_no_aa', chromosome)
