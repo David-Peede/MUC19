@@ -45,7 +45,7 @@ def archaic_het_chromosome(chromosome, archaic):
     gt, _ = load_gt_pos(f'{archaic.lower()}_masked_no_aa', chromosome)
     # Load the all sites matrix.
     arc_all_sites_info = np.loadtxt(
-        f'../vcf_data_5jan24/bookkeeping/{archaic.lower()}_masked_no_aa_calls_all_sites_chr{chromosome}.txt.gz',
+        f'../vcf_data/bookkeeping/{archaic.lower()}_masked_no_aa_calls_all_sites_chr{chromosome}.txt.gz',
         usecols=(1), dtype=int,
     )
     # Determine the effective sequence length for this chromosome.

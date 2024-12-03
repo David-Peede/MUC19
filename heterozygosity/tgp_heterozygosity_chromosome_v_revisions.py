@@ -65,7 +65,7 @@ def tgp_het_chromosome(chromosome):
     }
     # Load the qc site information.
     qc_sites_mat = np.loadtxt(
-        f'../vcf_data_5jan24/bookkeeping/tgp_no_aa_calls_failed_qc_chr{chromosome}.txt.gz',
+        f'../vcf_data/bookkeeping/tgp_no_aa_calls_failed_qc_chr{chromosome}.txt.gz',
         usecols=(1), dtype=int,
     )
     qced_sites = np.unique(qc_sites_mat).size
