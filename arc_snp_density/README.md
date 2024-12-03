@@ -13,11 +13,18 @@ All packages are publicly available and their documentation can be viewed at the
 ## Code
 
 __Compute archaic SNP density in non-overlapping windows across the autosomes.__
-
 ```bash
-# Compute the archaic snp denisty for all non-AFR populations in non-overlapping windows.
 for CHR in {1..22}; do for WIND in 72 742; do
 python tgp_archaic_snp_denisty_windows_v_revisions.py ${CHR} ${WIND}
 done; done
 ```
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_arcs_masked_no_aa/tgp_archaic_snp_denisty_windows.tar.gz`.
 
+
+__Classify all snp types for all chromsomes in all non-AFR population and globally in the TGP.__
+```bash
+for CHR in {1..22}; do
+python classify_tgp_snps_chromosome_v_revisions.py ${CHR}
+done
+```
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_arcs_masked_no_aa/classify_tgp_snps_chromosome.tar.gz`.

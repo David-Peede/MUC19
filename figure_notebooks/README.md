@@ -14,10 +14,7 @@ All packages are publicly available and their documentation can be viewed at the
 ## Code
 
 __Create the `data` directory since GitHub only allows for 100Mb of storage. Note that all the data necessary to replicate the figures can be found in the de-compressed `data` directory without the need to run any other code.__
-
 ```bash
-# Extract the data directory.
 tar -xf data.tar.gz
 ```
-
-The resulting outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `figure_notebooks/main_figures`.
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `figure_notebooks/main_figures`.
