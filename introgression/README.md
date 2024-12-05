@@ -1,6 +1,6 @@
-# `site_patterns`
+# `introgression`
 
-This directory contains the code to replicate the site pattern results used in this study.
+This directory contains the code to replicate the introgression results used in this study.
 
 ## Packages
 
@@ -12,32 +12,46 @@ All packages are publicly available and their documentation can be viewed at the
 
 ## Code
 
-__Compute _D+_((YRI, OOA Population), Archaic)).__
-
+__Compute $U_{AFR,B,Denisovan}(1%, 30%, 100%)$ per non-AFR population (i.e., $B$) per NCBI RefSeq gene.__
 ```bash
-# Compute site patterns for P1=YRI, P2=OOA, P3=DEN/ALT/CHA/VIN in non-overlapping windows.
-for CHR in {1..22}; do for P2 in BEB STU ITU PJL GIH CHB KHV CHS JPT CDX TSI CEU IBS GBR FIN PEL MXL CLM PUR; do for P3 in DEN ALT CHA VIN; do
-python tgp_site_patterns_windows.py ${CHR} 72 YRI ${P2} ${P3}
+for CHR in {1..22}; do
+python tgp_u30_afr_b_den_genes_v_revisions.py ${CHR}
+done
+```
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_u30_afr_b_den_genes.tar.gz`.
+
+
+__Compute $U_{AFR,B,Denisovan}(1%, 30%, 100%)$ per non-AFR population (i.e., $B$) in non-overlapping windows.__
+```bash
+for CHR in {1..22}; do for WIND in 72 742; do
+python tgp_u30_afr_b_den_windows_v_revisions.py ${CHR} ${WIND}
+done; done
+```
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_den_masked_no_aa/tgp_u30_afr_b_den_windows.tar.gz`.
+
+
+__Jointly compute $Q95_{AFR,B,Denisovan}(1%, 100%)$ $U_{AFR,B,Denisovan}(1%, 30%, 100%)$ per non-AFR population (i.e., $B$) in non-overlapping windows.__
+```bash
+for CHR in {1..22}; do for WIND in 72 742; do
+python tgp_q95_u30_afr_b_den_windows_v_revisions.py ${CHR} ${WIND} DEN
+done; done
+```
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_den_masked_no_aa/tgp_q95_u30_afr_b_den_windows.tar.gz`.
+
+
+__Compute _D+((YRI, NA19664), Archaic))_ in non-overlapping windows.__
+```bash
+for CHR in {1..22}; do for WIND in 72 742; do for ARC in DEN ALT CHA VIN; do
+python mxl_archaic_site_patterns_windows_v_revisions.py ${CHR} ${WIND} ${ARC}
 done; done; done
 ```
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_den_masked_aa/mxl_archaic_site_patterns_windows.tar.gz`, `muc19_results/tgp_alt_masked_aa/mxl_archaic_site_patterns_windows.tar.gz` `muc19_results/tgp_cha_masked_aa/mxl_archaic_site_patterns_windows.tar.gz`, and `muc19_results/tgp_vin_masked_aa/mxl_archaic_site_patterns_windows.tar.gz`.
 
-__Compute _D+_((Altai Neanderthal, Late Neanderthals), Denisovan)).__
 
+__Compute _D+((Altai Neanderthal, Late Neanderthals), Denisovan))_ in non-overlapping windows.__
 ```bash
-# Compute site patterns for P1=ALT, P2=CHA/VIN, P3=DEN in non-overlapping windows.
 for CHR in {1..22}; do
-python arc_site_patterns_windows.py ${CHR} 72 ALT CHA DEN
-python arc_site_patterns_windows.py ${CHR} 72 ALT VIN DEN
+python archaic_site_patterns_windows_v_revisions.py ${CHR} 72
 done
 ```
-
-__Compute _D+_((Chagyrskaya Neanderthal, Vindija Neanderthal), Altai Neanderthal/Denisovan)).__
-
-```bash
-# Compute site patterns for P1=CHA, P2=VIN, P3=ALT/DEN in non-overlapping windows.
-for CHR in {1..22}; do
-python arc_site_patterns_windows.py ${CHR} 72 CHA VIN ALT
-python arc_site_patterns_windows.py ${CHR} 72 CHA VIN DEN
-done
-```
-
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/arcs_masked_aa`.
