@@ -95,28 +95,23 @@ def tgp_arc_site_patterns(
     return results
 
 # Define a function to calculate site patterns in windows.
-def tgp_archaic_site_patterns_windows(chromosome, window_size, archaic):
+def mxl_archaic_site_patterns_windows(chromosome, window_size, archaic):
     # Load in the meta information as a pandas dataframe.
     tgp_meta_df = pd.read_csv(
         '../meta_data/tgp_mod.txt', sep='\t',
         names=['IND', 'POP', 'SUPERPOP'],
     )
-    # Intialize a list of focal populations.
-    p2_list = [
-        'MXL', 'PEL', 'CLM', 'PUR', # AMR.
-        'BEB', 'STU', 'ITU', 'PJL', 'GIH', # SAS.
-        'CHB', 'KHV', 'CHS', 'JPT', 'CDX', # EAS.    
-        'TSI', 'CEU', 'IBS', 'GBR', 'FIN', # EUR.
-    ]
+    # Intialize a list of focal individuals.
+    p2_list = tgp_meta_df[tgp_meta_df['POP'] == 'MXL']['IND'].values
     # Intialize a dictionary to store all sample indicies.
     samp_idx_dicc = {
         f'{archaic}': np.array([2347]),
         'YRI': tgp_meta_df[tgp_meta_df['POP'] == 'YRI'].index.values,
     }
     # For every p2 population.
-    for pop in p2_list:
+    for ind in p2_list:
         # Append the dictionary with sample indicies.
-        samp_idx_dicc[pop] = tgp_meta_df[tgp_meta_df['POP'] == pop].index.values
+        samp_idx_dicc[ind] = tgp_meta_df[tgp_meta_df['IND'] == ind].index.values
     # Extract the genotype callset and positions.
     callset, all_pos = load_callset_pos(f'tgp_{archaic.lower()}_masked_aa', chromosome)
     # Load the windows data frame.
@@ -130,32 +125,32 @@ def tgp_archaic_site_patterns_windows(chromosome, window_size, archaic):
     n_windows = chr_qc_windows_df.shape[0]
     # Intialize a dictionary to store the results.
     sp_dicc = {}
-    # For ever P2 population.
-    for p2_pop in p2_list:
+    # For ever P2.
+    for p2 in p2_list:
         # Intialize a a results matrix.
-        sp_dicc[p2_pop] = np.empty((n_windows, 6))
+        sp_dicc[p2] = np.empty((n_windows, 6))
     # For every window.
     for wind in range(n_windows):
         # Locate the window.
         wind_loc = all_pos.locate_range(chr_starts[wind], chr_stops[wind])
         # For every P2 population.
-        for p2_pop in p2_list:
+        for p2 in p2_list:
             # Update the results matrix.
-            sp_dicc[p2_pop][wind, :] = tgp_arc_site_patterns(
+            sp_dicc[p2][wind, :] = tgp_arc_site_patterns(
                 gt=allel.GenotypeArray(callset[wind_loc]),
-                p1_idx=samp_idx_dicc['YRI'], p2_idx=samp_idx_dicc[p2_pop], p3_idx=samp_idx_dicc[f'{archaic}'],
+                p1_idx=samp_idx_dicc['YRI'], p2_idx=samp_idx_dicc[p2], p3_idx=samp_idx_dicc[f'{archaic}'],
             )
     # For every P2 population.
-    for p2_pop in p2_list:
+    for p2 in p2_list:
         # Export the the results matrix.
         np.savetxt(
-            f'../muc19_results/tgp_{archaic.lower()}_masked_aa/yri_{p2_pop.lower()}_{archaic.lower()}_chr{chromosome}_{window_size}kb.txt.gz',
-            sp_dicc[p2_pop], fmt='%1.15f',
+            f'../muc19_results/tgp_{archaic.lower()}_masked_aa/yri_{p2.lower()}_{archaic.lower()}_chr{chromosome}_{window_size}kb.txt.gz',
+            sp_dicc[p2], fmt='%1.15f',
         )
     return
 
 # Calculate site pattern counts.
-tgp_archaic_site_patterns_windows(
+mxl_archaic_site_patterns_windows(
     chromosome=int(sys.argv[1]),
     window_size=int(sys.argv[2]),
     archaic=str(sys.argv[3]),
