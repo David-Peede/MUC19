@@ -1,4 +1,4 @@
-# `figure_notebooks`
+# `figure_nbs`
 
 This directory contains the code to replicate the main figures from this study.
 
