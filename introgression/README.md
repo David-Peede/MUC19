@@ -12,7 +12,7 @@ All packages are publicly available and their documentation can be viewed at the
 
 ## Code
 
-__Compute $U_{AFR,B,Denisovan}(1%, 30%, 100%)$ per non-AFR population (i.e., $B$) per NCBI RefSeq gene.__
+__Compute _U{AFR,B,Denisovan}(1%, 30%, 100%)_ per non-AFR population (i.e., _B_) per NCBI RefSeq gene.__
 ```bash
 for CHR in {1..22}; do
 python tgp_u30_afr_b_den_genes_v_revisions.py ${CHR}
@@ -21,7 +21,7 @@ done
 The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_u30_afr_b_den_genes.tar.gz`.
 
 
-__Compute $U_{AFR,B,Denisovan}(1%, 30%, 100%)$ per non-AFR population (i.e., $B$) in non-overlapping windows.__
+__Compute _U{AFR,B,Denisovan}(1%, 30%, 100%)_ per non-AFR population (i.e., _B_) in non-overlapping windows.__
 ```bash
 for CHR in {1..22}; do for WIND in 72 742; do
 python tgp_u30_afr_b_den_windows_v_revisions.py ${CHR} ${WIND}
@@ -30,7 +30,7 @@ done; done
 The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_den_masked_no_aa/tgp_u30_afr_b_den_windows.tar.gz`.
 
 
-__Jointly compute $Q95_{AFR,B,Denisovan}(1%, 100%)$ $U_{AFR,B,Denisovan}(1%, 30%, 100%)$ per non-AFR population (i.e., $B$) in non-overlapping windows.__
+__Jointly compute _Q95{AFR,B,Denisovan}(1%, 30%, 100%)_ _U{AFR,B,Denisovan}(1%, 30%, 100%)_ per non-AFR population (i.e., _B_) in non-overlapping windows.__
 ```bash
 for CHR in {1..22}; do for WIND in 72 742; do
 python tgp_q95_u30_afr_b_den_windows_v_revisions.py ${CHR} ${WIND} DEN
