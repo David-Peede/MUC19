@@ -1,7 +1,7 @@
 # Import packages.
 import allel
+from itertools import product
 import numpy as np
-import numcodecs
 import pandas as pd
 import sys
 import zarr
@@ -63,17 +63,25 @@ def calc_pbs_per_region(gt, pop_a, pop_b, pop_c):
         )
     return pbs
 
-# Define a function to calculate PBS_{A={PEL, CLM, PUR}:CHB:CEU} in non-overlapping windows.
+# Define a function to calculate PBS_{AMR:SAS/EAS:EUR} in non-overlapping windows.
 def pbs_windows(chrom, window_size):
     # Load in the meta information as a pandas dataframe.
     meta_df = pd.read_csv(
         '../meta_data/tgp_mod.txt', sep='\t',
         names=['IND', 'POP', 'SUPERPOP'],
     )
+    # Extract the asian, european, and admixed american populations.
+    asn_pops = np.unique(meta_df[
+        (meta_df['SUPERPOP'] == 'SAS') | (meta_df['SUPERPOP'] == 'EAS')
+    ]['POP'].values)
+    eur_pops = np.unique(meta_df[meta_df['SUPERPOP'] == 'EUR']['POP'].values)
+    amr_pops = np.unique(meta_df[meta_df['SUPERPOP'] == 'AMR']['POP'].values)
+    # Find all unique combinations.
+    amr_asn_eur_combos = list(product(amr_pops, asn_pops, eur_pops))
     # Intialize a dictionary to store all sample indicies.
     samp_idx_dicc = {}
     # For every population...
-    for pop in ['PEL', 'CLM', 'PUR', 'CEU', 'CHB']:
+    for pop in np.concatenate((amr_pops, asn_pops, eur_pops)):
         # Append the dictionary with sample indicies.
         samp_idx_dicc[pop] = meta_df[meta_df['POP'] == pop].index.values
     # Extract the genotype callset and positions.
@@ -87,24 +95,26 @@ def pbs_windows(chrom, window_size):
     chr_stops = chr_qc_windows_df['STOP'].values
     # Determine the number of winds.
     n_winds = chr_qc_windows_df.shape[0]
-    # Intialize a matrix to store the results.
-    results_mat = np.empty((n_winds, 3))
+    # Intialize a dictionary to store the results.
+    results_dicc = {combo: np.empty((n_winds)) for combo in amr_asn_eur_combos}
     # For ever window.
     for wind in range(n_winds):
         # Locate the window.
         wind_loc = all_pos.locate_range(chr_starts[wind], chr_stops[wind])
-        # For every amr population.
-        for i, amr in enumerate(['PEL', 'CLM', 'PUR']):
+        # For every combination of population b and c.
+        for a_pop, b_pop, c_pop in amr_asn_eur_combos:
             # Compute PBS.
-            results_mat[wind, i] = calc_pbs_per_region(
-                gt=allel.GenotypeArray(callset[wind_loc]), pop_a=samp_idx_dicc[amr],
-                pop_b=samp_idx_dicc['CHB'], pop_c=samp_idx_dicc['CEU'],
+            results_dicc[(a_pop, b_pop, c_pop)][wind] = calc_pbs_per_region(
+                gt=allel.GenotypeArray(callset[wind_loc]), pop_a=samp_idx_dicc[a_pop],
+                pop_b=samp_idx_dicc[b_pop], pop_c=samp_idx_dicc[c_pop],
             )
-    # Export the results.
-    np.savetxt(
-        f'../muc19_results/tgp_mod_no_aa/amr_chb_ceu_pbs_chr{chrom}_{window_size}kb.txt.gz',
-        results_mat, fmt='%1.15f',
-    )
+    # For every combination of population b and c.
+    for a_pop, b_pop, c_pop in amr_asn_eur_combos:
+        # Export the results.
+        np.savetxt(
+            f'../muc19_results/tgp_mod_no_aa/{a_pop.lower()}_{b_pop.lower()}_{c_pop.lower()}_pbs_chr{chrom}_{window_size}kb.txt.gz',
+            [results_dicc[(a_pop, b_pop, c_pop)]], fmt='%1.15f',
+        )
     return
 
 

@@ -63,24 +63,34 @@ def calc_pbs_per_region(gt, pop_a, pop_b, pop_c):
         )
     return pbs
 
-# Define a function to calculate PBS_{MXL:CHB:CEU} in non-overlapping windows.
-def pbs_windows(chrom, window_size):
+
+# Define a function to calculate pbs for all sprime sites in a window.
+def sprime_sites_pbs_windows(chrom, window_size):
+    # Intialize a list of sprime site types.
+    sprime_sites = ['all_arc']
+    # Extract the genotype callset and positions.
+    callset, all_pos = load_callset_pos('tgp_mod_no_aa', chrom)
+    # Intilize a dictionary.
+    sprime_dicc = {}
+    # For every sprime site.
+    for site in sprime_sites:
+        # Load the information.
+        sprime_pos = np.loadtxt(f'../meta_data/mxl_sprime_{site}_sites_chr{chrom}.txt.gz', dtype=int)
+        # Determine the sites in the dataset.
+        dataset_mask = np.isin(sprime_pos, all_pos)
+        # Fill the sites of interest.
+        sprime_dicc[site] = sprime_pos[dataset_mask]
     # Load in the meta information as a pandas dataframe.
     meta_df = pd.read_csv(
         '../meta_data/tgp_mod.txt', sep='\t',
         names=['IND', 'POP', 'SUPERPOP'],
     )
     # Intialize a dictionary to store all sample indicies.
-    samp_idx_dicc = {
-        'MXL_NAT': np.loadtxt('../amr_lai/anc_props/mxl_nat_idx.txt.gz', dtype=int),
-        'MXL_NOT': np.loadtxt('../amr_lai/anc_props/mxl_not_idx.txt.gz', dtype=int),
-    }
+    samp_idx_dicc = {}
     # For every population...
-    for pop in ['MXL', 'CEU', 'CHB']:
+    for pop in ['MXL', 'CHB', 'CEU']:
         # Append the dictionary with sample indicies.
         samp_idx_dicc[pop] = meta_df[meta_df['POP'] == pop].index.values
-    # Extract the genotype callset and positions.
-    callset, all_pos = load_callset_pos('tgp_mod_no_aa', chrom)
     # Load the windows data frame.
     qc_windows_df = pd.read_csv(f'../windowing/tgp_mod_no_aa/{window_size}kb_nonoverlapping_variant_windows.csv.gz')
     # Subset the the windows for the chromosome.
@@ -90,26 +100,38 @@ def pbs_windows(chrom, window_size):
     chr_stops = chr_qc_windows_df['STOP'].values
     # Determine the number of winds.
     n_winds = chr_qc_windows_df.shape[0]
-    # Intialize a matrix to store the results.
-    results_mat = np.empty((n_winds, 3))
-    # For ever window.
+    # Intialize a dictionary.
+    results_dicc = {arc_type: np.empty((n_winds, 2)) for arc_type in sprime_sites}
+    # For ever gene.
     for wind in range(n_winds):
-        # Locate the window.
-        wind_loc = all_pos.locate_range(chr_starts[wind], chr_stops[wind])
-        # For every ancestry partition.
-        for i, mxl in enumerate(['MXL', 'MXL_NAT', 'MXL_NOT']):
-            # Compute PBS.
-            results_mat[wind, i] = calc_pbs_per_region(
-                gt=allel.GenotypeArray(callset[wind_loc]), pop_a=samp_idx_dicc[mxl],
-                pop_b=samp_idx_dicc['CHB'], pop_c=samp_idx_dicc['CEU'],
-            )
-    # Export the results.
-    np.savetxt(
-        f'../muc19_results/tgp_mod_no_aa/mxl_chb_ceu_pbs_partitions_chr{chrom}_{window_size}kb.txt.gz',
-        results_mat, fmt='%1.15f',
-    )
+        # For every archaic snp type.
+        for arc_type in sprime_sites:
+            # Create a mask of the archaic sites.
+            arc_mask = ((chr_starts[wind] <= sprime_dicc[arc_type]) & (sprime_dicc[arc_type] <= chr_stops[wind]))
+            # If there are no archaic alleles.
+            if (arc_mask.sum() == 0):
+                # Update the results.
+                results_dicc[arc_type][wind, :] = np.array([np.nan, 0])
+            # Else there are archaic alleles to do computations on.
+            else:
+                # Generate a mask.
+                arc_pos_mask = np.isin(all_pos, sprime_dicc[arc_type][arc_mask])
+                # Compute PBS.
+                wind_pbs = calc_pbs_per_region(
+                    gt=allel.GenotypeArray(callset).compress(arc_pos_mask, axis=0),
+                    pop_a=samp_idx_dicc['MXL'], pop_b=samp_idx_dicc['CHB'], pop_c=samp_idx_dicc['CEU'],
+                )
+                # Update the results.
+                results_dicc[arc_type][wind, :] = np.array([wind_pbs, arc_pos_mask.sum()])
+    # For every archaic site type.
+    for arc_type in sprime_sites:
+        # Export the results.
+        np.savetxt(
+            f'../muc19_results/tgp_mod_no_aa/mxl_chb_ceu_pbs_sprime_{arc_type.lower()}_chr{chrom}_{window_size}kb.txt.gz',
+            results_dicc[arc_type], fmt='%1.15f',
+        )
     return
 
 
 # Calculate pbs.
-pbs_windows(chrom=int(sys.argv[1]), window_size=int(sys.argv[2]))
+sprime_sites_pbs_windows(chrom=int(sys.argv[1]), window_size=int(sys.argv[2]))

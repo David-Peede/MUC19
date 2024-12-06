@@ -91,7 +91,7 @@ def pbs_chromosome(chrom):
         )
     # Export the results.
     np.savetxt(
-        f'../muc19_results/tgp_mod_no_aa/mxl_chb_ceu_pbs_chr{chrom}.txt.gz',
+        f'../muc19_results/tgp_mod_no_aa/mxl_chb_ceu_pbs_partitions_chr{chrom}.txt.gz',
         results_mat, fmt='%1.15f',
     )
     return

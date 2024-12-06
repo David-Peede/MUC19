@@ -12,32 +12,37 @@ All packages are publicly available and their documentation can be viewed at the
 
 ## Code
 
-__Compute PBS partitioned by ancestry components.__
-
+__Compute PBS for MXL:CHB:CEU partitioned by ancestry per non-overlapping window.__
 ```bash
-# Compute PBS (MXL:CHB:CEU) for every SNP.
+for CHR in {1..22}; do for WIND in 72 742; do
+python mxl_chb_ceu_pbs_windows_v_revisions.py ${CHR} ${WIND}
+done; done
+```
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_mod_no_aa/mxl_chb_ceu_pbs_windows.tar.gz`.
+
+
+__Compute PBS for MXL:CHB:CEU partitioned by ancestry per SNP.__
+```bash
 for CHR in {1..22}; do
-python mxl_pbs_chromosome.py ${CHR}
+python mxl_chb_ceu_pbs_chromsome_v_revisions.py ${CHR}
 done
 ```
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_mod_no_aa/mxl_chb_ceu_pbs_chromosome.tar.gz`.
 
-__Compute the windowed average PBS value.__
 
+__Compute PBS for MXL:CHB:CEU for SPrime sites per non-overlapping window.__
 ```bash
-# Compute PBS (MXL:CHB:CEU) in non-overlapping windows.
-for CHR in {1..22}; do
-python mxl_pbs_windows.py ${CHR} 748
-done
+for CHR in {1..22}; do for WIND in 72 742; do
+python sprime_sites_mxl_chb_ceu_pbs_windows_v_revisions.py ${CHR} ${WIND}
+done; done
 ```
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_mod_no_aa/sprime_sites_mxl_chb_ceu_pbs_windows.tar.gz`.
 
 
-
-__Compute PBS for Denisovan-specific sites.__
-
+__Compute PBS for AMR:ASN:EUR per non-overlapping window.__
 ```bash
-# Compute PBS (MXL:CHB:CEU) for every Denisovan-specific SNP.
-for CHR in {1..22}; do
-python den_sites_pbs_chromosome.py ${CHR}
-done
+for CHR in {1..22}; do for WIND in 72 742; do
+python amr_asn_eur_pbs_windows_v_revisions.py ${CHR} ${WIND}
+done; done
 ```
-
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_mod_no_aa/amr_asn_eur_pbs_windows.tar.gz`.
