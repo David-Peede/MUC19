@@ -17,4 +17,4 @@ __Create the `data` directory since GitHub only allows for 100Mb of storage. Not
 ```bash
 tar -xf data.tar.gz
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `figure_nbs/main_figures`.
+The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `figure_nbs/main_figures.tar.gz`.
