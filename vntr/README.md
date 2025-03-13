@@ -4,9 +4,11 @@ This directory contains the code to replicate the VNTR data used in this study.
 
 ## Packages
 
-All packages are publicly available and their documentation can be viewed at the following places:
+All software is publicly available and their documentation can be viewed at the following places:
 
 - [`InVNTR v1.4`](https://github.com/ValdmanisLab/InVNTR)
+- [`RepeatLengthEstimatorFromShortRead`](https://github.com/ValdmanisLab/RepeatLengthEstimatorFromShortRead)
+
 
 ## Data
 
@@ -16,23 +18,10 @@ All data is publicly available and can be downloaded from the following location
 - [Human Pangenome Reference Consortium](https://projects.ensembl.org/hprc/)
 - [Human Genome Structural Variant Consortium](https://www.internationalgenome.org/data-portal/data-collection/hgsvc2)
 
-## `InVNTR` Preprocessing
+## Long Read Data
 
-Following the best practices outlined in [Course et. al., 2021](10.1101/gr.275560.121) count and extract reads for the focal region `Chr12:40482139-40491565` and two control regions `Chr7:5500000-5600000` and `Chr12:6490000-6590000` using the `InVNTR` program.
+Long read data was processed with `InVNTR`, which extracted sequence information from haplotype assemblies corresponding with `Chr12:40482139-40491565` on hg38, and attempted to decompose into individual repeat motifs. We followed up by manually ensuring that the VNTR decomposed the motifs by correcting motifs that were not properly split into 30bp motifs in VNTR_frequency.csv. This was done by using find and replace in a text editor to add commas to a transposed VNTR.csv file output.
 
-## `InVNTR` Postprocessing
+## Short Read Data
 
-In order to ensure that the repeat has been properly split into individual motifs, especially in repeats with high internal variability like mucins, it is important to ensure that all of the most common motifs in the `VNTR_frequency.csv` are the expected length. If motifs are too long and they include multiple repeat units in a single motif, we use find and replace to add comma's in the appropriate location in `VNTR.csv`. If the frame of the motif was shifted, or if the motifs were smaller than expected due to the delimiter appearing within the motif, we used find and replace to remove the commas.
-
-### Output Overview
-
-- `VNTR.csv`
-  - CSV with each allele named after the file, cut into simple motifs based on the length or delimiter provided from the beginning of the allele.
-- `VNTR_allele_length.csv`
-  - CSV with the length of each allele accross the dataset.
-- `VNTR_frequency.csv`
-  - CSV with the frequency of each repeat motif accross the entire dataset.
-- `VNTR_alleles.txt `
-  - Text file with each allele after the name of the file.
-- `VNTR_errors.txt`
-  - Text file with any errors (i.e., `filename has only reverse end` or `filename has no sign of tandem repeat in forward, reverse`).
+Short read data was processed with `RepeatLengthEstimatorFromShortRead`. This bash script follows the best practices outlined in [Course et. al., 2021](10.1101/gr.275560.121) to count and extract reads for the focal region in hg38 `Chr12:40482139-40491565` and two control regions `Chr7:5500000-5600000` and `Chr12:6490000-6590000`. We ran this script in a folder with short read whole genome sequences files. It counts the number of reads in each of the 3 regions and divides the number of reads by the number of base pairs in each region, averages the two control regions, and divides the focal region value by the control region value to come up with an enrichment value for each sample. This enrichment value was then multiplied by the number of base pairs in the focal region in hg38 as well as the number of repeat copies in hg38 in order to estimate the length of the repeat for each short read whole genome and the number of repeat copies. 
