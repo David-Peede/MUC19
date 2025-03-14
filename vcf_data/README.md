@@ -10,6 +10,7 @@ All packages are publicly available and their documentation can be viewed at the
 - [`Tabix v0.2.6`](http://www.htslib.org/doc/tabix.html)
 - [`scikit-allel v1.3.5`](https://scikit-allel.readthedocs.io/en/stable/index.html)
 - [`SnpEff v5.1`](https://pcingola.github.io/SnpEff/)
+- [`Beagle v5.4`](https://faculty.washington.edu/browning/beagle/b5_4.html)
 
 ## Data
 
@@ -286,6 +287,18 @@ done
 ```
 
 
+__Subset the focal 72kb region for phasing.__
+```bash
+bcftools view -r 12:40759001-40831000 -Oz -o ./muc19/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb.vcf.gz ./filtered_merge/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_chr12.vcf.gz
+```
+
+
+__Index the focal 72kb region for phasing.__
+```bash
+tabix -p vcf ./muc19/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb.vcf.gz
+```
+
+
 __Convert the filtered VCF files to `Zarr` arrays.__
 ```bash
 for CHR in {1..22}; do
@@ -310,3 +323,70 @@ python subset_filtered_annotated_vcf_by_annotation.py ${CHR} tgp_mod_all_archaic
 done; done
 ```
 The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `vcf_data/ann_summary/tgp_arcs_masked_no_aa_coding_annotations.tar.gz`.
+
+
+### Phasing
+
+**Subset the focal samples and reference panels.**
+```bash
+bcftools view -S ^../meta_data/tgp_mod_samps.txt -Oz -o ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps.vcf.gz ./muc19/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb.vcf.gz
+bcftools view -S ../meta_data/tgp_mod_samps.txt -Oz -o ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_ref_panel_all_inds.vcf.gz ./muc19/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb.vcf.gz
+```
+
+
+**Index the focal samples and reference panels.**
+```bash
+for PREFIX in tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_ref_panel_all_inds; do
+tabix -p vcf ./phasing/${PREFIX}.vcf.gz
+done
+```
+
+
+**‌Subset the reference panels for the different phasing datasets.**
+```bash
+for DATA in syn cha vin; do
+bcftools view -R ./phasing/${DATA}_to_phase_sites.txt -Oz -o ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_ref_panel_all_inds_${DATA}_to_phase_sites.vcf.gz ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_ref_panel_all_inds.vcf.gz
+done
+```
+
+
+**‌Subset the focal samples for the different phasing datasets.**
+```bash
+bcftools view -R ./phasing/syn_to_phase_sites.txt -Oz -o ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps_syn_to_phase_sites.vcf.gz ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps.vcf.gz
+bcftools view -R ./phasing/cha_to_phase_sites.txt -s AltaiNeandertal,Chagyrskaya-Phalanx,Denisova -Oz -o ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps_cha_to_phase_sites.vcf.gz ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps.vcf.gz
+bcftools view -R ./phasing/vin_to_phase_sites.txt -s AltaiNeandertal,Vindija33.19,Denisova -Oz -o ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps_vin_to_phase_sites.vcf.gz ./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps.vcf.gz
+```
+
+
+**Remove the header from the focal samples VCF file for generating the synthetic Neanderthal.**
+```bash
+zcat tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps_syn_to_phase_sites.vcf.gz | grep -v '^##' | gzip > tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps_syn_to_phase_sites.txt.gz
+```
+
+
+**Extract the header from the focal samples VCF file for generating the synthetic Neanderthal.**
+```bash
+zcat tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps_syn_to_phase_sites.vcf.gz | grep '^##' > tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps_syn_to_phase_sites_header.txt
+```
+
+
+**Phase the synthetic Neanderthal.**
+```bash
+java -Xmx2g -jar beagle.22Jul22.46e.jar gt=./phasing/alt_syn_nean_den_unphased.vcf ref=./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_ref_panel_all_inds_syn_to_phase_sites.vcf.gz out=./phasing/alt_syn_nean_den_phased_ref_panel_all_inds map=./phasing/plink_maps/plink.chr12.GRCh37.map chrom=12:40759001-40831000 impute=False seed=42
+```
+
+
+**Phase the late Neanderthals.**
+```bash
+for DATA in cha vin; do
+java -Xmx2g -jar beagle.22Jul22.46e.jar gt=./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_focal_samps_${DATA}_to_phase_sites.vcf.gz  ref=./phasing/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_muc19_72kb_ref_panel_all_inds_${DATA}_to_phase_sites.vcf.gz out=./phasing/${DATA}_phased_ref_panel_all_inds map=./phasing/plink_maps/plink.chr12.GRCh37.map chrom=12:40759001-40831000 impute=False seed=42
+done
+```
+
+
+__Convert the phased late Neanderthal VCF files to `Zarr` arrays.__
+```bash
+for DATA in cha vin; do
+python vcf_to_zarr.py ./phasing/${DATA}_phased_ref_panel_all_inds.vcf.gz ${DATA}_phased_ref_panel_all_inds 12
+done
+```
