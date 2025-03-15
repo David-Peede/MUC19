@@ -8,6 +8,7 @@ import zarr
 
 ### sys.argv[1] = window size ###
 ### sys.argv[2] = chromosome ###
+### sys.argv[3] = dataset prefix ###
 
 
 # Define a function to compute adjusted chromosome lengths.
@@ -35,14 +36,17 @@ def chr_seq_len(window_size):
         new_chr_dicc[key] = new_chr_len
     return new_chr_dicc
 
-# Define a function to break up a chromosome into windows.
+# Define a function to break up a chromosome into non-overlapping windows.
 def window_info(positions, window_size, sequence_length):
     # Intialize a dicctionary with the start and stop position for each window.
     windows = {}
     start_stop = {}
     index = 0
+    # For every non-overlapping window.
     for window_start in range(1, int(sequence_length), int(window_size)):
+        # Update the position indicies of the window.
         windows[index] = np.where(((window_start <= positions) & (positions < (window_start+window_size))))[0]
+        # Update the start and stop positions.
         start_stop[index] = [window_start, (window_start+window_size)]
         index += 1
     return windows, start_stop
@@ -54,62 +58,79 @@ def variable_site_check(gt, idx_dicc):
     # For every archaic...
     for key in idx_dicc.keys():
         # Determine the indicies where all samples are called.
-        called_mask = (gt.take(idx_dicc[key], axis=1).is_called() == True).all(axis=1)
-        # If there are no sites called between all samples...
-        if (called_mask.sum() == 0):
-            # Append the results.
-            var_sites.append(0)
-        # Else:
-        else:
-            # Determine the number of variable sites.
-            var_bool = gt.take(idx_dicc[key], axis=1).compress(called_mask, axis=0).count_alleles().is_variant()
-            # Append the results.
-            var_sites.append(var_bool.sum())
+        called_mask = gt.take(idx_dicc[key], axis=1).is_called().all(axis=1)
+        # Append the results.
+        var_sites.append(called_mask.sum())
     return np.array(var_sites)
 
 # Define a function to calculate the number of segregating sites.
 def count_seg_sites(gt):
     # Count the number of segregsting sites.
-    seg_sites = gt.take(np.arange(gt.shape[1]-1), axis=1).count_alleles().count_segregating()
+    seg_sites = gt.count_alleles().count_segregating()
     return seg_sites
 
 # Define a function to load genotyope and positions arrays.
 def load_callset_pos(prefix, chrom):
     # Intialize the file path.
-    path = '../vcf_data/zarr_data/{0}_chr{1}.zarr'.format(prefix, chrom)
+    path = f'../zarr_data/{prefix}_chr{chrom}.zarr'
     # Load the zarr array.
     zarr_array = zarr.open_group(path, mode='r')
     # Extract the genotype callset.
-    callset = zarr_array['{0}/calldata/GT'.format(chrom)]
+    callset = zarr_array[f'{chrom}/calldata/GT']
     # Load the positions.
-    pos = allel.SortedIndex(zarr_array['{0}/variants/POS'.format(chrom)])
-    return callset, pos
-
-# Define a function to load genotyope and positions arrays.
-def load_callset_pos(prefix, chrom):
-    # Intialize the file path.
-    path = '../vcf_data/zarr_data/{0}_chr{1}.zarr'.format(prefix, chrom)
-    # Load the zarr array.
-    zarr_array = zarr.open_group(path, mode='r')
-    # Extract the genotype callset.
-    callset = zarr_array['{0}/calldata/GT'.format(chrom)]
-    # Load the positions.
-    pos = allel.SortedIndex(zarr_array['{0}/variants/POS'.format(chrom)])
+    pos = allel.SortedIndex(zarr_array[f'{chrom}/variants/POS'])
     return callset, pos
 
 # Define a function to qc non-overlapping windows.
-def windows_qc(window_size, chromosome):
-    # Intialize sample indicies dictionaries.
-    var_check_dicc = {
-        'ALT': np.array([0]),
-        'CHA': np.array([1]),
-        'VIN': np.array([2]),
-        'DEN': np.array([3]),
+def windows_qc(window_size, chromosome, prefix):
+    # Intialize a dictionary to store the all sites path information.
+    path_dicc = {
+        'tgp_arcs_masked_aa': '../vcf_data/bookkeeping/tgp_all_archaics_masked_aa_calls_all_sites',
+        'tgp_arcs_masked_no_aa': '../vcf_data/bookkeeping/tgp_all_archaics_masked_no_aa_calls_all_sites',
+        'sgdp_arcs_masked_no_aa': '../vcf_data/bookkeeping/sgdp_all_archaics_masked_no_aa_calls_all_sites',
     }
+    # If this is the sgdp dataset.
+    if 'sgdp' in prefix:
+        # Load in the meta information as a pandas dataframe.
+        meta_df = pd.read_csv(
+            '../meta_data/sgdp.txt', sep='\t',
+            names=['IND', 'POP', 'SUPERPOP'],
+        )
+        # Identify all the modern human indicies.
+        hum_idx = meta_df.index.values
+        # Intialize sample indicies dictionaries.
+        var_check_dicc = {
+            'ALT': np.append(hum_idx, np.array([278])),
+            'CHA': np.append(hum_idx, np.array([279])),
+            'VIN': np.append(hum_idx, np.array([280])),
+            'DEN': np.append(hum_idx, np.array([281])),
+        }
+        # Intitialize the all sites path, window path, and column variable.
+        hum_all_sites_path = f'{path_dicc[prefix]}_chr{chromosome}.txt.gz'
+        hum_window_path = f'./{prefix}/{window_size}kb_window_summary_chr{chromosome}.csv.gz'
+    # Else, this is the tgp data set.
+    else:
+        # Load in the meta information as a pandas dataframe.
+        meta_df = pd.read_csv(
+            '../meta_data/tgp_mod.txt', sep='\t',
+            names=['IND', 'POP', 'SUPERPOP'],
+        )
+        # Identify all the modern human indicies.
+        hum_idx = meta_df.index.values
+        # Intialize sample indicies dictionaries.
+        var_check_dicc = {
+            'ALT': np.append(hum_idx, np.array([2347])),
+            'CHA': np.append(hum_idx, np.array([2348])),
+            'VIN': np.append(hum_idx, np.array([2349])),
+            'DEN': np.append(hum_idx, np.array([2350])),
+        }
+        # Intitialize the all sites path, window path, and column variable.
+        hum_all_sites_path = f'{path_dicc[prefix]}_chr{chromosome}.txt.gz'
+        hum_window_path = f'./{prefix}/{window_size}kb_window_summary_chr{chromosome}.csv.gz'
     # Initialize the window length.
     window_length = window_size * 1_000
     # Extract the genotype callset and positions.
-    callset, all_pos = load_callset_pos('arc_anc', chromosome)
+    callset, all_pos = load_callset_pos(prefix, chromosome)
     # Calculate the adjusted chromosome lengths.
     chr_len_dicc = chr_seq_len(window_length)
     # Construct the window dictionaries.
@@ -120,8 +141,9 @@ def windows_qc(window_size, chromosome):
     )
     # Load the all site information.
     all_sites_mat = np.loadtxt(
-        '../vcf_data/vcf_bookkeeping/all_archaics_merged_all_sites_qc/chr{0}_all_sites_report.txt'.format(chromosome),
-        delimiter='\t', dtype=int,
+        hum_all_sites_path,
+        usecols=(0, 1, 2, 3, 4, 5),
+        dtype=int,
     )
     # Determine the number of windows.
     n_windows = len(wind_dicc.keys())
@@ -136,6 +158,8 @@ def windows_qc(window_size, chromosome):
         var_idx = wind_dicc[wind]
         # Extract the effective sequence length information.
         esl_idx = np.where(((start <= all_sites_mat[:, 1]) & (all_sites_mat[:, 1] <= stop)))[0]
+        # Determine the effective sequence length for the modern humans.
+        hum_esl = esl_idx.size
         # If the window has variant sites to do calculations on...
         if (var_idx.size > 0):
             # Locate the window.
@@ -164,19 +188,19 @@ def windows_qc(window_size, chromosome):
             if (wind_var_sites > 0).all():
                 # Append the results.
                 results_mat[wind, :] = np.array(
-                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[s]+[1], dtype=object,
+                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[hum_esl, s]+[1], dtype=object,
                 )
             # Else-if all archaics passed QC at at least one site.
             elif (np.array(eff_seq_len.tolist()+pw_list) > 0).all():
                 # Append the results.
                 results_mat[wind, :] = np.array(
-                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[s]+[1], dtype=object,
+                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[hum_esl, s]+[1], dtype=object,
                 )
             # Else.
             else:
                 # Append the results.
                 results_mat[wind, :] = np.array(
-                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[s]+[0], dtype=object,
+                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[hum_esl, s]+[0], dtype=object,
                 )
         # Else-if there sites that passed qc for this window.
         elif (esl_idx.size > 0):
@@ -197,19 +221,19 @@ def windows_qc(window_size, chromosome):
             if (np.array(eff_seq_len.tolist()+pw_list) > 0).all():
                 # Append the results.
                 results_mat[wind, :] = np.array(
-                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[0]+[1], dtype=object,
+                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[hum_esl, 0]+[1], dtype=object,
                 )
             # Else.
             else:
                 # Append the results.
                 results_mat[wind, :] = np.array(
-                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[0]+[0], dtype=object,
+                    [wind, start, stop]+eff_seq_len.tolist()+pw_list+[hum_esl, 0]+[0], dtype=object,
                 )
         # Else.
         else:
             # Append the results.
             results_mat[wind, :] = np.array(
-                [wind, start, stop]+np.zeros(11).tolist()+[0], dtype=object,
+                [wind, start, stop]+np.zeros(12).tolist()+[0], dtype=object,
             )
     # Export the the results matrix as a pandas dataframe.
     wind_df = pd.DataFrame(
@@ -222,7 +246,7 @@ def windows_qc(window_size, chromosome):
             'DEN-ALT', 'DEN-CHA',
             'DEN-VIN', 'ALT-CHA',
             'ALT-VIN', 'CHA-VIN',
-            'S', 'QC',
+            'HUM', 'S', 'QC',
         ],
     )
     wind_df = wind_df.astype({
@@ -233,10 +257,11 @@ def windows_qc(window_size, chromosome):
         'DEN-ALT': 'int', 'DEN-CHA': 'int',
         'DEN-VIN': 'int', 'ALT-CHA': 'int',
         'ALT-VIN': 'int', 'CHA-VIN': 'int',
-        'S': 'int', 'QC': 'int',
+        'HUM': 'int', 'S': 'int',
+        'QC': 'int',
     })
-    wind_df.to_csv('./arc/{0}kb_window_summary_chr{1}.csv'.format(window_size, chromosome), index=False)
+    wind_df.to_csv(hum_window_path, index=False)
     return
 
 # Conduct the QC.
-windows_qc(window_size=int(sys.argv[1]), chromosome=int(sys.argv[2]))
+windows_qc(window_size=int(sys.argv[1]), chromosome=int(sys.argv[2]), prefix=str(sys.argv[3]))
