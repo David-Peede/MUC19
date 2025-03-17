@@ -1,0 +1,24 @@
+Location,ID,Age (years),Coverage (x),Reference
+Alaska,USR1,"11,500",17,Moreno-Mayar et al. 2018 Nature
+California,CR-01,"1,111",8.36,Scheib et al. 2018 Science
+California,CT-01,387,6.68,Scheib et al. 2018 Science
+California,NC\_C,"1,450",1.12,Scheib et al. 2018 Science
+California,PS-06,"1,570",4.12,Scheib et al. 2018 Science
+California,SC-05,"1,101",13.67,Scheib et al. 2018 Science
+California,SM-02,826,7.38,Scheib et al. 2018 Science
+California,SN-13,881,1.74,Scheib et al. 2018 Science
+California,SN-17,"4,517",7.46,Scheib et al. 2018 Science
+California,SN-44,"4,646",9.36,Scheib et al. 2018 Science
+Montana,Clovis,"12,500",14.4,Rasmussen et al. 2014 Nature
+Ontario,CK-13,"4,267",3.02,Scheib et al. 2018 Science
+Patagonia,ERR2270782,"1,000",7.8,de la Fuente et al. 2018 PNAS
+Patagonia,ERR2270783,"1,000",3.5,de la Fuente et al. 2018 PNAS
+Patagonia,ERR2270784,"1,000",1.7,de la Fuente et al. 2018 PNAS
+Patagonia,ERR2270785,"1,000",9.1,de la Fuente et al. 2018 PNAS
+Peru,SRR8144644,"1,800",3.34,Lindo et al. 2018 Science Advances
+Peru,SRR8144646,"1,800",5.89,Lindo et al. 2018 Science Advances
+Peru,SRR8144647,"1,800",6.51,Lindo et al. 2018 Science Advances
+Peru,SRR8144650,"1,800",5.62,Lindo et al. 2018 Science Advances
+Quer\'{e}taro,2417J,"1,161",1.39,Villa-Islas et al. 2023 Science
+Quer\'{e}taro,2417Q,"1,257",4.74,Villa-Islas et al. 2023 Science
+Quer\'{e}taro,333B,"1,351",2.28,Villa-Islas et al. 2023 Science
