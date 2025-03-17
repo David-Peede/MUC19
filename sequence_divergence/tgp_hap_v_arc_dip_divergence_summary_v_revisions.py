@@ -256,7 +256,7 @@ def compile_hum_hap_v_arc_dip_div_summary(window_size):
         }, inplace=True,
     )
     # Export the dataframe as a csv.
-    div_df.to_csv(f'../science_reviews_round_01_analyses/dataframes/tgp_haplotype_archaic_diplotype_divergence_{window_size}kb.csv.gz', index=False)
+    div_df.to_csv(f'../analyses_nbs/dataframes/tgp_haplotype_archaic_diplotype_divergence_{window_size}kb.csv.gz', index=False)
     return
 
 # Compile the haplotype divergence summary.

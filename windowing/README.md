@@ -15,7 +15,7 @@ All packages are publicly available and their documentation can be viewed at the
 __QC non-overlapping windows across autosomes for the single archaic datasets.__
 ```bash
 for CHR in {1..22}; do for PREFIX in den_masked_no_aa alt_masked_no_aa cha_masked_no_aa vin_masked_no_aa; do
-python single_archaic_window_qc_v_revisions..py 72 ${CHR} ${PREFIX}
+python single_archaic_window_qc_v_revisions.py 72 ${CHR} ${PREFIX}
 done; done
 ```
 
@@ -46,7 +46,7 @@ done; done; done
 
 __QC non-overlapping windows across autosomes for the all archaics + modern human combined datasets.__
 ```bash
-for CHR in {1..22}; do for WIND in 72 742 670; do for PREFIX in tgp_arcs_masked_no_aa tgp_arcs_masked_aa; do
+for CHR in {1..22}; do for WIND in 72 742; do for PREFIX in tgp_arcs_masked_no_aa tgp_arcs_masked_aa; do
 python tgp_sgdp_all_archaics_window_qc_v_revisions.py ${WIND} ${CHR} ${PREFIX}
 done; done; done
 ```
@@ -59,9 +59,6 @@ python consolidate_all_archaics_tgp_sgdp_windows_v_revisions.py 72 ${PREFIX}
 done
 for PREFIX in tgp_mod_aa tgp_mod_no_aa tgp_den_masked_aa tgp_den_masked_no_aa tgp_alt_masked_aa tgp_alt_masked_no_aa tgp_cha_masked_aa tgp_cha_masked_no_aa tgp_vin_masked_aa tgp_vin_masked_no_aa tgp_arcs_masked_no_aa tgp_arcs_masked_aa; do
 python consolidate_all_archaics_tgp_sgdp_windows_v_revisions.py 742 ${PREFIX}
-done
-for PREFIX in tgp_arcs_masked_no_aa tgp_arcs_masked_aa; do
-python consolidate_all_archaics_tgp_sgdp_windows_v_revisions.py 670 ${PREFIX}
 done
 ```
 

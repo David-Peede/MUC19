@@ -26,7 +26,7 @@ All data is publicly available and can be downloaded from the following location
 
 ## Code
 
-Note that because the intermediate VCF and bookkeeping files take up roughly 3TB of storage, the final filtered VCF, converted to `Zarr` arrays and used for all analyses, has been made publicly available.
+Note that because the intermediate VCF and bookkeeping files take up roughly 3TB of storage.
 
 ### Single Archaic Datasets
 

@@ -243,7 +243,7 @@ def compile_hum_hap_v_cha_vin_hap_div_summary():
         }, inplace=True,
     )
     # Export the dataframe as a csv.
-    div_df.to_csv('../science_reviews_round_01_analyses/dataframes/tgp_haplotype_late_neanderthal_phased_haplotype_divergence_72kb.csv.gz', index=False)
+    div_df.to_csv('../analyses_nbs/dataframes/tgp_haplotype_late_neanderthal_phased_haplotype_divergence_72kb.csv.gz', index=False)
     return
 
 # Compile the psuedo-haplotype divergence summary.

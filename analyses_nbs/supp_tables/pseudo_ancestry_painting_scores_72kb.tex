@@ -1,0 +1,20 @@
+\begin{longtblr}
+{
+colspec={XXXXXXXXX},
+hlines={solid, 1pt},
+vlines={solid, 1pt},
+cells={halign=c, valign=m},
+width=\linewidth,
+rowhead=1,
+row{odd}={Grey},
+row{1}={Brown, fg=white, halign=c, valign=m},
+caption={\textbf{Table S49. Pseudo-Ancestry Painting scores for the focal 72kb \textit{MUC19} region.} \newline The Pseudo-Ancestry Painting (\textit{PAP}) scores observed in the focal 72kb \textit{MUC19} region. The \textit{PAP} score quantifies the number of heterozygous sites in the target individual (i.e., \textit{Target}) that can be explained by the two source individuals (i.e., $Source^{1}$ and $Source^{2}$) being fixed different allelic states and then normalized by the total number of heterozygous sites in the target individual. \textit{PAP} scores were first computed for the late Neanderthals as target individuals using the Denisovan and Altai Neanderthal as sources as well as a pairing of an MXL individual (i.e., NA19664) who is homozygous for the \textit{Denisovan-like} haplotype at the 72kb region and a YRI individual (i.e., NA19190) who is homozygous for the \textit{Human-like} haplotype. Additionally, as a negative control, we computed additional \textit{PAP} configurations where the Denisovan and Altai Neanderthal are the target individuals and the focal MXL (i.e., NA19664) and YRI (i.e., NA19190) individuals are sources. For each \textit{PAP} configuration, the mean ($\mu$), standard deviation ($\sigma$), standard error of the mean (\textit{SEM}), and 95\% confidence intervals ($\pm CI_{95\%}$) of the \textit{PAP} score genomic background distribution used to compute the \textit{P-value} are also reported. The \textit{P-value} represents the proportion of non-overlapping 72kb windows of comparable effective sequence length where the \textit{PAP} score is greater than or equal to that observed at the focal 72kb region. A \textit{P-value} less than 0.05 is considered statistically significant.},
+}
+$Source^{1}$ & $Target$ & $Source^{2}$ & Focal 72kb Region $\left( PAP \text{ Score} \right)$ & 72kb Non-overlapping Windows $\left( \mu \right)$ & 72kb Non-overlapping Windows $\left( \sigma \right)$ & 72kb Non-overlapping Windows $\left( SEM \right)$ & 72kb Non-overlapping Windows $\left( \pm CI_{95\%} \right)$ & $P-value$ \\
+Denisovan & Chagyrskaya Nean. & Altai Nean. & 0.792 & 0.105 & 0.173 & 0.001 & 0.002 & 0.005 \\
+Denisovan & Vindija Nean. & Altai Nean. & 0.801 & 0.085 & 0.154 & 0.001 & 0.002 & 0.003 \\
+MXL (NA19664) & Chagyrskaya Nean. & YRI (NA19190) & 0.94 & 0.008 & 0.046 & $3.348e^{-4}$ & $6.562e^{-4}$ & $3.683e^{-4}$ \\
+MXL (NA19664) & Vindija Nean. & YRI (NA19190) & 0.929 & 0.006 & 0.038 & $2.511e^{-4}$ & $4.922e^{-4}$ & $8.679e^{-5}$ \\
+MXL (NA19664) & Denisovan & YRI (NA19190) & 0 & 0.005 & 0.032 & $1.998e^{-4}$ & $3.916e^{-4}$ & $>0.999967$ \\
+MXL (NA19664) & Altai Nean. & YRI (NA19190) & 0 & 0.008 & 0.044 & $3.111e^{-4}$ & $6.097e^{-4}$ & $>0.999967$ \\
+\end{longtblr}
