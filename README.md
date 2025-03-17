@@ -5,37 +5,46 @@ Code associated with Villanea and Peede et. al. 202X.
 ## Directory Overview
 
 ```bash
+├── amr_lai
+│   ├── anc_props
+│   └── region_beds
 ├── analyses_nbs
+│   ├── dataframes
+│   └── supp_tables
 ├── ancient_americans
 ├── arc_snp_density
 ├── figure_nbs
-│   └── figures
 ├── heterozygosity
+├── hmmix_tracts
+├── iHS
+├── introgression
+├── meta_data
 ├── pbs
 ├── pbs_sims
 │   ├── data
-│   ├── output
-│   │   └── pbs
 │   └── scripts
-│       └── slim
+├── psuedo_ancestry_painting
 ├── sequence_divergence
-├── site_patterns
 ├── vcf_data
+│   ├── muc19
+│   └── phasing
 ├── vntr
 └── windowing
-    ├── arc
-    └── tgp
 ```
 
 ### Data Generation Directories
 
+- `amr_lai`
 - `ancient_americans`
 - `arc_snp_density`
 - `heterozygosity`
+- `hmmix_tracts`
+- `iHS`
+- `introgression`
 - `pbs`
 - `pbs_sims`
+- `psuedo_ancestry_painting`
 - `sequence_divergence`
-- `site_patterns`
 - `vcf_data`
 - `vntr`
 - `windowing`

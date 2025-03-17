@@ -18,7 +18,6 @@ for CHR in {1..22}; do
 python tgp_archaic_psuedo_ancestry_painting_windows_v_revisions.py ${CHR} 72
 done
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/tgp_arcs_masked_no_aa/tgp_archaic_psuedo_ancestry_painting_windows.tar.gz`.
 
 
 __Compute the number of PAP sites for archaic individuals in non-overlapping windows.__
@@ -27,4 +26,3 @@ for CHR in {1..22}; do
 python archaic_psuedo_ancestry_painting_windows_v_revisions.py ${CHR} 72
 done
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `muc19_results/arcs_masked_no_aa/archaic_psuedo_ancestry_painting_windows.tar.gz`.
