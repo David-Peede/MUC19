@@ -1,0 +1,271 @@
+// Valeria Anorve-Garibay
+// Demographic model for MXL in 1KGP by Medina-Munoz et al. 2023
+// Negative (heterosis)
+// SLiM version 4.1
+// No scaling factor
+
+initialize() {
+
+	initializeMutationRate(1.3154071069676549e-08*1.0); // mean mutation rate in 742kb focal region
+	//initializeTreeSeq();
+	
+	// Mutations
+	// m1: non coding -- assumed neutral here
+	initializeMutationType("m1", 0.5, "f", 0.0);
+	
+	// m2: nonsynonymous (slightly deleterious) drawn from a DFE from Kim et al.
+	// mean selection coefficient and alpha shape parameter for gamma distribution
+	initializeMutationType("m2", 0.0, "g", -0.01315*1.0, 0.186);
+	
+	// neutral
+	initializeMutationType("m3", 0.5, "f", 0.0);
+	
+	// Genomic elements:
+	
+	// exons: use a mixture of syn and nonsyn at a 1:2.31 ratio (Huber et al.)
+	initializeGenomicElementType("g1", c(m1,m2), c(1.0,2.31));
+	
+	// neutral: assumed as blocks between exons
+	initializeGenomicElementType("g2", c(m3), c(1.0));
+	
+	// read in exon and recomb info
+	info_lines = readFile("../data/sim_seq_MUC19_742kb.ftxt");
+
+	// neutral
+	for (line in info_lines[substr(info_lines, 0, 2) == "neu"])
+	{
+		components = strsplit(line, " ");
+		neu_starts = asInteger(components[1]);
+		neu_ends = asInteger(components[2]);
+		initializeGenomicElement(g2, neu_starts, neu_ends);
+	}
+
+	//exons
+	for (line in info_lines[substr(info_lines, 0, 2) == "exo"])
+	{
+		components = strsplit(line, " ");
+		exon_starts = asInteger(components[1]);
+		exon_ends = asInteger(components[2]);
+		initializeGenomicElement(g1, exon_starts, exon_ends);
+	}
+	
+	// recombination map
+	rec_ends = NULL;
+	rec_rates = NULL;
+	for (line in info_lines[substr(info_lines, 0, 2) == "rec"])
+	{
+	  components = strsplit(line, " ");
+	  rec_ends = c(rec_ends, asInteger(components[1]));
+	  rec_rates = c(rec_rates, asFloat(components[2]));
+	}
+	
+	// multiply rec rates by scaling factor
+	initializeRecombinationRate(0.5*(1-(1-2*rec_rates)^1.0), rec_ends);
+	
+	// uniform recombination rate
+	//initializeRecombinationRate(5.999665348061085e-09*1.0); // mean recombination rate in the 742kb focal region
+
+}
+
+/// **Demography:**
+/// Generation time: 29 years
+/// burn-in: 13580*10 (10N)
+// p0: Equilibrium/root population: ancestral
+
+1 early() /* create ancestral pop - burn-in */ {
+	// save this run's identifier, used to save and restore
+	defineConstant("simID", getSeed());
+	sim.addSubpop("p0", asInteger(round(13580.373657849503/1.0))); // ANCESTRAL
+}
+
+135801 early() /* archaic split from ancestral: 20,225 generations ago (586,525 y. a.) */ {
+	// p1: archaic
+	sim.addSubpopSplit("p1", asInteger(round(13249/1.0)), p0); // ARCHAIC
+}
+
+139355 early() /* anatomically modern human (AMH) split from ancestral: 16,671 generations ago (483,459 y. a.) */ {
+	// AMH: split from Ancestral
+	sim.addSubpopSplit("p4", asInteger(round(27142.07281765073/1.0)), p0); // AMH
+}
+
+139355 late() /* ancestral extinction */ {
+	p0.setSubpopulationSize(0);
+}
+
+140936 early() /* neanderthal and denisova split: 15,090 generations ago (437,610 y. a.) */ {
+	// p2: Neanderthal
+	sim.addSubpopSplit("p2", asInteger(round(826/1.0)), p1); // NEA
+	
+	// p3: Denisova
+	sim.addSubpopSplit("p3", asInteger(round(5083/1.0)), p1); // DEN
+}
+
+140936 late() /* archaic extinction */ {
+	p1.setSubpopulationSize(0);
+}
+
+152980 early() /* OOA and AFR split from AMH: 3,046 generations ago (88,334 y. a.) */ {
+	// OOA: split from AMH
+	sim.addSubpopSplit("p5", asInteger(round(1834.8116479610317/1.0)), p4); // OoA
+	
+	// AFR: split from AMH
+	sim.addSubpopSplit("p6", asInteger(round(27142.07281765073/1.0)), p4); // OoA
+}
+
+152980 late() /* AMH extinction */ {
+	// AMH: extinction
+	p4.setSubpopulationSize(0);
+}
+
+// migration events
+152981 early() /* AFR <-> OOA migration */ {
+	// AFR -> OOA
+	p5.setMigrationRates(p6, 0.000158595);
+	// OOA -> AFR
+	p6.setMigrationRates(p5, 0.000158595);
+}
+
+153957 early() /* Neanderthal -> OoA: 2,069 generations ago (60,001 y. a.) */ {
+	// NEA -> OOA
+	p5.setMigrationRates(p2, 0.05);
+}
+
+153957 late() /* Neanderthal -| OoA */ {
+	// NEA -| OOA
+	p5.setMigrationRates(p2, 0);
+}
+
+154262 early() /* EUR and EAS split from OoA: 1,764 generations ago (51,156 y. a.) */ {
+	// EUR: split from OOA
+	sim.addSubpopSplit("p7", asInteger(round(2761.3347067250797/1.0)), p5); // EUR
+	
+	// EAS: split from OOA
+	sim.addSubpopSplit("p8", asInteger(round(1954.52946761033/1.0)), p5); // EAS
+}
+
+154262 late() /* AFR |-| OOA and OOA extinction */ {
+	// YRI -| OOA
+	p5.setMigrationRates(p6, 0);
+	// OOA -| YRI
+	p6.setMigrationRates(p5, 0);
+	// OOA: extinction
+	p5.setSubpopulationSize(0);
+}
+
+154263:156026 early() /* EUR and EAS exponential growth */ {
+	// EUR: exponential growth
+	start_size = 2761;
+	end_size = 26462;
+	r = log(end_size / start_size);
+	gx = (sim.cycle - self.start + 1) / (self.end - self.start + 1);
+	size = asInteger(round(start_size * exp(r * gx)));
+	p7.setSubpopulationSize(size);
+	
+	// EAS: exponential growth
+	start_size = 1955;
+	end_size = 15364;
+	r = log(end_size / start_size);
+	gx = (sim.cycle - self.start + 1) / (self.end - self.start + 1);
+	size = asInteger(round(start_size * exp(r * gx)));
+	p8.setSubpopulationSize(size);
+}
+
+154263 early() /* Migration events among AFR, EUR and EAS */ {
+	
+	// AFR -> EUR
+	p7.setMigrationRates(p6, 2.50161e-05);
+	// EUR -> AFR
+	p6.setMigrationRates(p7, 2.50161e-05);
+	// AFR -> EAS
+	p8.setMigrationRates(p6, 3.29483e-06);
+	// EAS -> AFR
+	p6.setMigrationRates(p8, 3.29483e-06);
+	// EUR -> EAS
+	p8.setMigrationRates(p7, 6.62401e-05);
+	// EAS -> EUR
+	p7.setMigrationRates(p8, 6.62401e-05);
+
+}
+
+154474 early() /* Denisovan -> EAS: 1,552 generations ago (45,008 y. a.) */ {
+	// DEN -> EAS
+	p8.setMigrationRates(p3, 0.05);
+}
+
+154474 late() /* Denisovan -| OoA */ {
+	// DEN -| EAS
+	p8.setMigrationRates(p3, 0);
+}
+
+154475 late() /* Neanderthal and Denisovan extinction */ {
+	// NEA: extinction
+	p2.setSubpopulationSize(0);
+	// DEN: extinction
+	p3.setSubpopulationSize(0);
+}
+
+154903 early() /* MXB split from EAS: 1,123 generations ago (32,567 y. a.) */ {
+	// MXB: split from EAS
+	sim.addSubpopSplit("p9", asInteger(round(1312.8044812722449/1.0)), p8); // MXB: Indigenous Americans in Mexico / 50Genomes from MXB
+}
+
+154904:156026 early() /* MXB exponential growth */ {
+	// MXB: exponential growth
+	start_size = 1313;
+	end_size = 38462;
+	r = log(end_size / start_size);
+	gx = (sim.cycle - self.start + 1) / (self.end - self.start + 1);
+	size = asInteger(round(start_size * exp(r * gx)));
+	p9.setSubpopulationSize(size);
+}
+
+156010 early() /* create MXB and admixture from MXB and IBS to MXB: 16 generations ago (464 y. a.) */ {
+	// MXL: admixture of MXB IBS
+	sim.addSubpop("p10", 20000); // MXL
+	p10.setMigrationRates(c(p9, p7), c(0.7508, 0.2492));
+}
+
+156010 late() /* MXB and IBS -| MXL */ {
+	// MXL
+	p10.setMigrationRates(c(p9, p7), c(0, 0));
+}
+
+156011 early()  /* migration events */ {
+	// MXB -> MXL
+	p10.setMigrationRates(p9, 0.0502);
+	// EUR -> MXL
+	p10.setMigrationRates(p7, 0.0573);
+}
+
+156013 early() /* migration events */ {
+	// YRI -> MXL
+	p10.setMigrationRates(p6, 0.11178);
+	// CHB -> MXL
+	p10.setMigrationRates(p8, 0.007422);
+}
+
+156013 late() /* end of migration events */ {
+	// YRI -| MXL
+	p10.setMigrationRates(p6, 0);
+	// CHB -| MXL
+	p10.setMigrationRates(p8, 0);
+}
+
+156024 late() /* end of migration events */ {
+	// MXB -| MXL
+	p10.setMigrationRates(p9, 0);
+	// IBS -| MXL
+	p10.setMigrationRates(p7, 0);
+}
+
+/***/
+/** **Final output:** */
+156026 late() /* VCF for EUR, EAS and MXL */ {
+	
+	EUR_genomes = sample(p7.individuals, 99).genomes;
+	EAS_genomes = sample(p8.individuals, 103).genomes;
+	MXL_genomes = sample(p10.individuals, 64).genomes;
+	outSamples = c(EUR_genomes, EAS_genomes, MXL_genomes);
+	outSamples.outputVCF("../smodel/negative/recomb_map/VCF_snegative_" + simID + "_" + nrun + ".txt", simplifyNucleotides=F);
+
+}

@@ -29,4 +29,3 @@ bedtools intersect -a ./rfmix_beds/${IND}_A.bed -b ./region_beds/${REGION}_regio
 bedtools intersect -a ./rfmix_beds/${IND}_B.bed -b ./region_beds/${REGION}_region.bed -wo > ./region_beds/${REGION}/${IND}_B.bed
 done; done
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `amr_lai/region_beds/short_read_repeat_amr_beds.tar.gz` and `amr_lai/region_beds/72kb_amr_beds.tar.gz`.

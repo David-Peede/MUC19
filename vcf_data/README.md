@@ -44,7 +44,6 @@ bcftools view -R ./masks/vin/chr${CHR}_mask.bed.gz -Oz -o ./arcs/vin_masked_chr$
 bcftools view -R ./masks/den/chr${CHR}_mask.bed.gz -Oz -o ./arcs/den_masked_chr${CHR}.vcf.gz ${DEN}/chr${CHR}_mq25_mapab100.vcf.gz
 done
 ```
-Note that the `bed` files containing general filters that are strongly encouraged to be applied to all ancient samples can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `vcf_data/archaic_masks.tar.gz`.
 
 
 __Index the masked VCF files.__
@@ -69,7 +68,6 @@ for CHR in {1..22}; do for ARC in alt cha vin den; do
 python vcf_to_zarr.py ./filtered_merge/${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz ${ARC}_masked_no_aa_chr${CHR} ${CHR}
 done; done
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `zarr_data/den_masked_no_aa.tar.gz`, `zarr_data/alt_masked_no_aa.tar.gz`, `zarr_data/cha_masked_no_aa.tar.gz`, and `zarr_data/vin_masked_no_aa.tar.gz`.
 
 
 ### Combined Archaic Datasets
@@ -113,8 +111,6 @@ python vcf_to_zarr.py ./filtered_merge/all_archaics_masked_var_sites_no_aa_calls
 python vcf_to_zarr.py ./filtered_merge/all_archaics_masked_var_sites_aa_calls_chr${CHR}.vcf.gz arcs_masked_aa_chr${CHR} ${CHR}
 done
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `zarr_data/arcs_masked_no_aa.tar.gz` and `zarr_data/arcs_masked_aa.tar.gz`.
-
 
 ### Modern Human Datasets
 
@@ -172,7 +168,6 @@ python vcf_to_zarr.py ./filtered_merge/tgp_mod_var_sites_aa_calls_chr${CHR}.vcf.
 python vcf_to_zarr.py ./filtered_merge/sgdp_var_sites_no_aa_calls_chr${CHR}.vcf.gz sgdp_no_aa_chr${CHR} ${CHR}
 done
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `zarr_data/tgp_mod_no_aa.tar.gz`, `zarr_data/tgp_mod_aa.tar.gz`, and `zarr_data/sgdp_no_aa.tar.gz`.
 
 
 ### Single Archaic + Modern Human Datasets
@@ -240,7 +235,6 @@ python vcf_to_zarr.py ./filtered_merge/tgp_mod_${ARC}_masked_var_sites_aa_calls_
 python vcf_to_zarr.py ./filtered_merge/sgdp_${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz sgdp_${ARC}_masked_no_aa_chr${CHR} ${CHR}
 done; done
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `zarr_data/tgp_alt_masked_no_aa.tar.gz`, `zarr_data/tgp_cha_masked_no_aa.tar.gz`, `zarr_data/tgp_vin_masked_no_aa.tar.gz`,  `zarr_data/tgp_den_masked_no_aa.tar.gz`, `zarr_data/tgp_alt_masked_aa.tar.gz`, `zarr_data/tgp_cha_masked_aa.tar.gz`, `zarr_data/tgp_vin_masked_aa.tar.gz`,  `zarr_data/tgp_den_masked_aa.tar.gz`, `zarr_data/sgdp_alt_masked_no_aa.tar.gz`, `zarr_data/sgdp_cha_masked_no_aa.tar.gz`, `zarr_data/sgdp_vin_masked_no_aa.tar.gz`,  and `zarr_data/sgdp_den_masked_no_aa.tar.gz`.
 
 
 ### All Archaics + Modern Human Combined Datasets
@@ -305,7 +299,6 @@ for CHR in {1..22}; do
 python vcf_to_zarr.py ./filtered_merge/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz tgp_arcs_masked_no_aa_chr${CHR} ${CHR}
 done
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `zarr_data/tgp_arcs_masked_no_aa.tar.gz`.
 
 
 **Annotate the VCF files.**
@@ -322,7 +315,6 @@ for CHR in {1..22}; do for SUFFIX in syn non; do
 python subset_filtered_annotated_vcf_by_annotation.py ${CHR} tgp_mod_all_archaics_masked_var_sites_no_aa_calls ${SUFFIX} | bgzip > ./filtered_merge_ann/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_${SUFFIX}_muts_chr${CHR}.vcf.gz
 done; done
 ```
-The corresponding outputs can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `vcf_data/ann_summary/tgp_arcs_masked_no_aa_coding_annotations.tar.gz`.
 
 
 ### Phasing

@@ -22,7 +22,7 @@ All data is publicly available and can be downloaded from the following location
 
 ## Code
 
-The two shell scripts—`tgp_hmmix_tutorial.sh` and `papuan_hmmix_tutorial.sh`—provide comprehensive, step-by-step tutorials for applying `hmmix` to individuals from the 1000 Genomes Project and the Papuan population from the Simons Genome Diversity Project. The unfiltered decoded and annotated tracts for all autosomes can be found on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing) at `‌tgp_hmmmix_haploid_tracts_per_ind.tar.gz` and `papuan_phased_hmmmix_haploid_tracts_per_ind.tar.gz`. Additionally, the pre-processed archaic tract information used as inputs for downstream analyses in the paper is also available on [Google Drive](https://drive.google.com/drive/folders/1w1uz1a0-l9LwR6x3CKWPgPtT02F1uKzv?usp=sharing):
+The two shell scripts—`tgp_hmmix_tutorial.sh` and `papuan_hmmix_tutorial.sh`—provide comprehensive, step-by-step tutorials for applying `hmmix` to individuals from the 1000 Genomes Project and the Papuan population from the Simons Genome Diversity Project. The unfiltered decoded and annotated tracts for all autosomes can be found on Zenodo. Additionally, the pre-processed archaic tract information used as inputs for downstream analyses in the paper is also available on Zenodo:
 
 - Chromosome 12's archaic tracts for the 1000 Genomes Project individuals at `hmmix_tracts/tgp_hmmix_haplotype_tracts_chr12.csv.gz`.
 - Archaic tracts overlapping the _MUC19_ region for the 1000 Genomes Project individuals at `hmmix_tracts/tgp_hmmix_haplotype_tracts_muc19.csv.gz`.
