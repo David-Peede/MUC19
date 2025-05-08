@@ -39,6 +39,29 @@ def calc_pbs_per_region(pop_a_gt, pop_b_gt, pop_c_gt):
     )
     return max(pbs, 0), a_b_fst, a_c_fst, c_b_fst
 
+# Define a function to export the simulated results.
+def export_positive_sims(sel_coeff, qc_df):
+    # Convert the qc dataframe to a dictionary.
+    qc_info = {
+        key: np.array(value) for key, value in qc_df.to_dict(orient='list').items()
+    }
+    # Determine the number of unique replicates.
+    uniq_reps = np.unique(qc_info['rng_seed'])
+    # Intialize masks.
+    has_den_snps_72kb = qc_info['n_den_72kb'] > 0
+    has_nea_snps_72kb = qc_info['n_nea_72kb'] > 0
+    has_both_snps_72kb = has_den_snps_72kb & has_nea_snps_72kb
+    is_mxl_gt_eur = qc_info['sel_mxl_daf'] > qc_info['sel_eur_daf']
+    is_mxl_gt_eas = qc_info['sel_mxl_daf'] > qc_info['sel_eas_daf']
+    is_mxl_biggest = is_mxl_gt_eur & is_mxl_gt_eas
+    is_qced = has_both_snps_72kb & is_mxl_biggest
+    # Subset the qc'ed simulatuions.
+    qced_df = qc_df[is_qced].reset_index(drop=True)
+    # Export.
+    results_path = '/users/dpeede/data/dpeede/08_muc19/muc19_results/mxl_slimulations'
+    qced_df.iloc[0:1_000, :].to_csv(f'{results_path}/positive_s{sel_coeff}_per_1k_replicates.csv.gz', index=False)
+    return
+
 # Define a function to QC the replicates.
 def extract_positive_sim_info(sel_coeff):
     # Intialize the path prefix.
@@ -167,8 +190,9 @@ def extract_positive_sim_info(sel_coeff):
         qced_df[col_key] = col_val
         
     # Export the results.
-    qced_df.to_csv(f'{sim_path}_{sel_coeff}/qced_slim_reps_info.csv.gz', index=False)
+    export_positive_sims(sel_coeff=sel_coeff, qc_df=qced_df)
     return
+
 
 # Compile the slimulation information.
 extract_positive_sim_info(str(sys.argv[1]))
