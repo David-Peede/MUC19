@@ -42,10 +42,7 @@ def calc_arc_dip_v_arc_dip_diffs(gt):
         'CHA': 1, 'VIN': 2,
     }
     # Intialize a list of all combinations.
-    arc_combos = [
-        ('DEN', 'ALT'), ('DEN', 'CHA'), ('DEN', 'VIN'),
-        ('ALT', 'CHA'), ('ALT', 'VIN'), ('CHA', 'VIN'),
-    ]
+    arc_combos = [('DEN', 'ALT')]
     # Intialize data structures to store the results.
     pwd_dicc = {}
     # For every archaic combination.

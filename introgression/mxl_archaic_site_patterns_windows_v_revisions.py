@@ -102,7 +102,7 @@ def mxl_archaic_site_patterns_windows(chromosome, window_size, archaic):
         names=['IND', 'POP', 'SUPERPOP'],
     )
     # Intialize a list of focal individuals.
-    p2_list = tgp_meta_df[tgp_meta_df['POP'] == 'MXL']['IND'].values
+    p2_list = ['NA19664']
     # Intialize a dictionary to store all sample indicies.
     samp_idx_dicc = {
         f'{archaic}': np.array([2347]),

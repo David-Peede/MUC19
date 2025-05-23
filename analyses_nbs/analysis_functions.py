@@ -824,7 +824,8 @@ def compile_ihs_window_summary(obs_dicc, wind_dicc, window_size):
     )
     # Export the dataframe as a csv.
     ihs_window_summary_df.to_csv(f'./dataframes/tgp_ihs_critical_scores_proportions_{window_size}kb.csv.gz', index=False)
-    return ihs_window_summary_df
+    # Subset to show the results reported in the paper.
+    return ihs_window_summary_df[np.isin(ihs_window_summary_df['SNP Set'].values, ['All SNPs', 'Archaic SNPs'])].reset_index(drop=True)
 
 # Define a function to plot the ihs results for a region of chromosome 12.
 def plot_chr12_ihs_region(df, region_or_window):
@@ -1599,7 +1600,7 @@ def load_short_read_vntr_data():
         tract_any_overlap(chr12_tracts_df, 40876395, 40885001), non_afr_pops,
     )
     # Load in the repeats dataframe.
-    short_read_repeats_df = pd.read_csv('../meta_data/hg38_muc19_short_read_repeats.csv')
+    short_read_repeats_df = pd.read_csv('../vntr/hg38_muc19_short_read_repeats.csv')
     # Filter out ACB and ASW.
     not_acb_or_asw = (short_read_repeats_df['POP'].values != 'ACB') & (short_read_repeats_df['POP'].values != 'ASW') 
     short_read_repeats_df = short_read_repeats_df[not_acb_or_asw].reset_index(drop=True)
@@ -2470,7 +2471,7 @@ def plot_vntr_mxl_ancestry_proportions(plot_dicc):
 # Define a function to plot repeat count correlations between sequencing technologies.
 def plot_vntr_dataset_correlation():
     # Load in the repeats dataframe.
-    df = pd.read_csv('../meta_data/hg38_muc19_long_vs_short_read_repeats.csv')
+    df = pd.read_csv('../vntr/hg38_muc19_long_vs_short_read_repeats.csv')
     # Extract the data.
     sr_copies = df['SR_REPEAT_COPIES'].values
     lr_copies = df['LR_REPEAT_COPIES'].values
@@ -9184,6 +9185,41 @@ def show_san_denisovan_seq_div_72kb():
     print(f'Sequence Divergence: {round(san_hap1_pwd / esl, 6)}')
     return
 
-
-
-
+# Define a function to annotate haplotype identities at the 72kb region.
+def annotate_tgp_hap_identities_72kb(den_thresh, rec_thresh):
+    # Intialize the meta information.
+    meta_data = pd.read_csv(
+        '../meta_data/tgp_mod.txt', sep='\t',
+        names=['IND', 'POP', 'SUPERPOP'],
+    )
+    # Extract the inidcies.
+    all_inds = meta_data['IND'].values
+    # Load the sequence divergence results.
+    div_72kb = pd.read_csv('./dataframes/tgp_haplotype_archaic_diplotype_divergence_72kb.csv.gz')
+    # Extract the denisovan divergence results.
+    den_div_72kb = div_72kb[div_72kb['Archaic'] == 'Denisovan']
+    den_hap1_72kb = den_div_72kb['Focal 72kb Region (Pairwise Diffs. Hap. 1)'].values
+    den_hap2_72kb = den_div_72kb['Focal 72kb Region (Pairwise Diffs. Hap. 2)'].values
+    # Intialize masks for the unphased haplotype identities at the 72kb region.
+    # Note: this threshold was chosen from the S-curves.
+    is_den_hap1_72kb = np.isin(all_inds, den_div_72kb[den_hap1_72kb < den_thresh]['Individual'].values)
+    is_den_hap2_72kb = np.isin(all_inds, den_div_72kb[den_hap2_72kb < den_thresh]['Individual'].values)
+    is_rec_hap1_72kb = np.isin(
+        all_inds, den_div_72kb[(den_hap1_72kb > den_thresh) & (den_hap1_72kb < rec_thresh)]['Individual'].values,
+    )
+    is_rec_hap2_72kb = np.isin(
+        all_inds, den_div_72kb[(den_hap2_72kb > den_thresh) & (den_hap2_72kb < rec_thresh)]['Individual'].values,
+    )
+    is_hum_hap1_72kb = ~(is_den_hap1_72kb | is_rec_hap1_72kb)
+    is_hum_hap2_72kb = ~(is_den_hap2_72kb | is_rec_hap2_72kb)
+    # Update the dataframe.
+    meta_data['IS_HAP1_DEN_72KB'] = is_den_hap1_72kb
+    meta_data['IS_HAP2_DEN_72KB'] = is_den_hap2_72kb
+    meta_data['IS_HAP1_HUM_72KB'] = is_hum_hap1_72kb
+    meta_data['IS_HAP2_HUM_72KB'] = is_hum_hap2_72kb
+    meta_data['IS_HAP1_REC_72KB'] = is_rec_hap1_72kb
+    meta_data['IS_HAP2_REC_72KB'] = is_rec_hap2_72kb
+    meta_data['N_DEN_HAPS_72KB'] = is_den_hap1_72kb.astype(int) + is_den_hap2_72kb.astype(int)
+    meta_data['N_HUM_HAPS_72KB'] = is_hum_hap1_72kb.astype(int) + is_hum_hap2_72kb.astype(int)
+    meta_data['N_REC_HAPS_72KB'] = is_rec_hap1_72kb.astype(int) + is_rec_hap2_72kb.astype(int)
+    return meta_data, {key: np.array(value) for key, value in meta_data.to_dict(orient='list').items()}

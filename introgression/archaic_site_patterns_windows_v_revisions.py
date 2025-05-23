@@ -100,8 +100,6 @@ def archaic_site_patterns_windows(chromosome, window_size):
     config_list = [
         ('ALT', 'CHA', 'DEN'),
         ('ALT', 'VIN', 'DEN'),
-        ('CHA', 'VIN', 'DEN'),
-        ('CHA', 'VIN', 'ALT'),
     ]
     # Intialize a dictionary to store the results.
     sp_dicc = {}
