@@ -28,11 +28,11 @@ done; done
 ```
 
 
-__QC non-overlapping windows across autosomes for 1000 Genomes Project datasets.__
+__QC non-overlapping windows across autosomes for 1000 Genomes Project dataset.__
 ```bash
-for CHR in {1..22}; do for WIND in 72 742; do for PREFIX in tgp_mod_aa tgp_mod_no_aa; do
-python tgp_window_qc_v_revisions.py ${WIND} ${CHR} ${PREFIX}
-done; done; done
+for CHR in {1..22}; do for WIND in 72 742; do
+python tgp_window_qc_v_revisions.py ${WIND} ${CHR} tgp_mod_no_aa
+done; done
 ```
 
 
@@ -46,18 +46,18 @@ done; done; done
 
 __QC non-overlapping windows across autosomes for the all archaics + modern human combined datasets.__
 ```bash
-for CHR in {1..22}; do for WIND in 72 742; do for PREFIX in tgp_arcs_masked_no_aa tgp_arcs_masked_aa; do
-python tgp_sgdp_all_archaics_window_qc_v_revisions.py ${WIND} ${CHR} ${PREFIX}
-done; done; done
+for CHR in {1..22}; do for WIND in 72 742; do
+python tgp_sgdp_all_archaics_window_qc_v_revisions.py ${WIND} ${CHR} tgp_arcs_masked_no_aa
+done; done
 ```
 
 
 **Consolidate the non-overlapping window QC information.**
 ```bash
-for PREFIX in den_masked_no_aa alt_masked_no_aa cha_masked_no_aa vin_masked_no_aa arcs_masked_aa arcs_masked_no_aa tgp_mod_aa tgp_mod_no_aa tgp_den_masked_aa tgp_den_masked_no_aa tgp_alt_masked_aa tgp_alt_masked_no_aa tgp_cha_masked_aa tgp_cha_masked_no_aa tgp_vin_masked_aa tgp_vin_masked_no_aa tgp_arcs_masked_no_aa tgp_arcs_masked_aa; do
+for PREFIX in arcs_masked_aa arcs_masked_no_aa den_masked_no_aa alt_masked_no_aa cha_masked_no_aa vin_masked_no_aa tgp_arcs_masked_no_aa tgp_den_masked_aa tgp_den_masked_no_aa tgp_alt_masked_aa tgp_alt_masked_no_aa tgp_cha_masked_aa tgp_cha_masked_no_aa tgp_vin_masked_aa tgp_vin_masked_no_aa tgp_mod_no_aa; do
 python consolidate_all_archaics_tgp_sgdp_windows_v_revisions.py 72 ${PREFIX}
 done
-for PREFIX in tgp_mod_aa tgp_mod_no_aa tgp_den_masked_aa tgp_den_masked_no_aa tgp_alt_masked_aa tgp_alt_masked_no_aa tgp_cha_masked_aa tgp_cha_masked_no_aa tgp_vin_masked_aa tgp_vin_masked_no_aa tgp_arcs_masked_no_aa tgp_arcs_masked_aa; do
+for PREFIX in tgp_arcs_masked_no_aa tgp_den_masked_aa tgp_den_masked_no_aa tgp_alt_masked_aa tgp_alt_masked_no_aa tgp_cha_masked_aa tgp_cha_masked_no_aa tgp_vin_masked_aa tgp_vin_masked_no_aa tgp_mod_no_aa; do
 python consolidate_all_archaics_tgp_sgdp_windows_v_revisions.py 742 ${PREFIX}
 done
 ```

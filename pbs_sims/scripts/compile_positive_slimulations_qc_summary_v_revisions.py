@@ -15,7 +15,7 @@ def qc_positive_sims(sel_coeff):
     # Intialize the path prefix.
     sim_path = '../smodel/positive_neutral'
     # Intialize a suffix to selection coeffiecient map.
-    suffix_map = {'1': 0.1, '01': 0.01, '0015': 0.0015, '001': 0.001, '0005': 0.0005}
+    suffix_map = {'1': 0.1, '01': 0.01, '0015': 0.0015}
     # Load the vcf files.
     file_list = [
         file for file in os.listdir(f'{sim_path}_{sel_coeff}')

@@ -81,10 +81,48 @@ This file contains the initially filtered `hmmix` autosomal archaic tracts for a
 - `N_VIN_SNPS`: Number of derived SNPs found in `IND` that are shared with the Vindija Neanderthal as reported by `hmmix`.
 - `N_CHA_SNPS`: Number of derived SNPs found in `IND` that are shared with the Chagyrskaya Neanderthal as reported by `hmmix`.
 
+### `tgp_muc19_short_read_vntr_info.csv.gz`
+This file contains the number of *MUC19* VNTR copies estimated from high-coverage short-read data and the number of `hmmix` introgressed tracts overlapping the *MUC19* VNTR region (hg19, Chr12:40876395-40885001) for individuals in the 1000 Genomes Project, with the following columns:
+- `Individual`: Individual ID.
+- `Population`: Population ID.
+- `Super Population`: Super population ID.
+- `Repeat Copies`: Number of 30bp repeat units for the corresponding `Individual`.
+- `Number of Tracts Overlapping the Repeat Region`: Number of `hmmix` introgressed tracts overlapping the VNTR region (hg19, Chr12:40876395-40885001).
+	- Note that we inferred introgressed tracts per haploid genome, so an individual can have at most two introgressed tracts overlapping the VNTR region (i.e., one per haploid genome since humans are diploid).
+- `Repeat Copies > 95th Percentile`: Is an individual's `Repeat Copies` value greater than 487 (boolean, e.g., True or False)?
+
+**Note**: The number of *MUC19* VNTR copies estimated from short-read data for the high-coverage archaic individuals is not included in this CSV file, but is reported here for the sake of completeness:
+- Altai Denisovan: 296 copies.
+- Altai Neanderthal: 379 copies.
+- Vindija Neanderthal: 268 copies.
+- Chagyrskaya Neanderthal: 293 copies.
+
+### `hprc_hgsv_muc19_long_read_vntr_info.csv.gz`
+This file contains the repeat length of the *MUC19* VNTR estimated from high-coverage long-read data for individuals in the Human Pangenome Reference Consortium and Human Genome Structural Variant Consortium, with the following columns:
+- `Super Population`: Super population ID.
+- `Population`: Population ID.
+- `Individual`: Individual ID.
+- `Haplotype`: Haploid assembly ID for the corresponding `Individual`.
+- `Repeat Length`: The total number of bases across all repeat units for the corresponding `Haplotype`.
+
+**Note**: Individuals from the Human Pangenome Reference Consortium have the `mat` and `pat` midfix, and individuals in the Human Genome Structural Variant Consortium have either the `clr` or `css` midfix in their corresponding haploid assembly ID, respectively.
+
+### `altai_nean_phased_late_neanderthals_denisovan_genos_72kb.csv.gz`
+This file contains the phased haplotypes for the late Neanderthals and the unphased genotypes for the Altai Denisovan and Altai Neanderthal for the 1669 variable sites with respect to the 1000 Genomes Project and the four high-coverage archaic individuals at the focal 72kb *MUC19* region, with the following columns:
+- `POS`: Genomic coordinate with respect to the hg19 reference assembly.
+- `REF`: Reference allele with respect to the hg19 reference assembly.
+- `ALT`: Alternative allele with respect to the hg19 reference assembly.
+- `Altai Nean.`: Alternative allele frequency with respect to the Altai Neanderthal—i.e., homozygous reference = 0, heterozygous = 0.5, homozygous alternative = 1, failed QC = missing.
+- `Chagyrskaya Nean. Hap. 1`: The allele present on the Chagyrskaya Neanderthal's *Neanderthal-like* haplotype—i.e., reference = 0, alternative = 1, failed QC = missing.
+- `Chagyrskaya Nean. Hap. 2`: The allele present on the Chagyrskaya Neanderthal's *Denisovan-like* haplotype—i.e., reference = 0, alternative = 1, failed QC = missing.
+- `Vindija Nean. Hap. 1`: The allele present on the Vindija Neanderthal's *Neanderthal-like* haplotype—i.e., reference = 0, alternative = 1, failed QC = missing.
+- `Vindija Nean. Hap. 2`: The allele present on the Vindija Neanderthal's *Denisovan-like* haplotype—i.e., reference = 0, alternative = 1, failed QC = missing.
+- `Denisovan`: Alternative allele frequency with respect to the Altai Denisovan—i.e., homozygous reference = 0, heterozygous = 0.5, homozygous alternative = 1, failed QC = missing.
+
 ### `dataset_1.csv.gz`
 This file contains the sequence divergence results between the haplotypes in the 1000 Genomes Project and the four high-coverage archaic individuals at the focal 72kb *MUC19* region, with the following columns:
 - `Individual`: Individual ID.
-- `Super Population`: Superpopulation ID.
+- `Super Population`: Super population ID.
 - `Population`: Population ID.
 - `Archaic`: The archaic individual used to compute sequence divergence.
 - `Focal 72kb Region (Pairwise Diffs. Hap. 1)`: The average number of pairwise differences between the `Individual`'s first haplotype and the `Archaic`'s two unphased chromosomes.
@@ -105,7 +143,7 @@ This file contains the sequence divergence results between the haplotypes in the
 ### `dataset_2.csv.gz`
 This file contains the sequence divergence results between the haplotypes in the 1000 Genomes Project and the four high-coverage archaic individuals at the focal 742kb *MUC19* region, with the following columns:
 - `Individual`: Individual ID.
-- `Super Population`: Superpopulation ID.
+- `Super Population`: Super population ID.
 - `Population`: Population ID.
 - `Archaic`: The archaic individual used to compute sequence divergence.
 - `Focal 742kb Region (Pairwise Diffs. Hap. 1)`: The average number of pairwise differences between the `Individual`'s first haplotype and the `Archaic`'s two unphased chromosomes.
@@ -126,7 +164,7 @@ This file contains the sequence divergence results between the haplotypes in the
 ### `dataset_3.csv.gz`
 This file contains the sequence divergence results between the haplotypes in the 1000 Genomes Project and the phased late Neanderthal haplotypes at the focal 72kb *MUC19* region, with the following columns:
 - `Individual`: Individual ID.
-- `Super Population`: Superpopulation ID.
+- `Super Population`: Super population ID.
 - `Population`: Population ID.
 - `Archaic Hap.`: The late Neanderthal haplotype used to compute sequence divergence.
 	- The *Denisovan-like* in each of the late Neanderthal's corresponds to their second haplotype (i.e., Chagyrskaya Nean. Hap. 2 and Vindija Nean. Hap. 2).
@@ -144,3 +182,45 @@ This file contains the sequence divergence results between the haplotypes in the
 	- After correcting for two multiple comparisons—i.e., two per each modern human haplotype—a *P-value* less than 0.0125 is considered statistically significant.
 
 **Note**: At the phased focal 72kb region, the effective sequence length with respect to the 1000 Genomes Project is 48119bp and 48444bp for the  Chagyrskaya and Vindija Neanderthal, respectively.
+
+### `dataset_4.csv.gz`
+This file contains the genotype information for the high-coverage long-read sequenced individuals aligned to hg38 used to validate the presence of the 135 Denisvoan-specific alleles identified from short-read data aligned to hg19, with the following columns:
+- `Chr12 Position (Hg19)`: Genomic coordinate with respect to the hg19 reference assembly.
+- `Ref. Allele (Hg19)`: Reference allele with respect to the hg19 reference assembly.
+	- Note that these alleles are identical to those in `Ref. Allele (Hg38)`.
+- `Denisovan Allele (Hg19)`: Denisovan allele with respect to the hg19 reference assembly.
+	- Note that these alleles are always alternative with respect to the hg19 reference assembly and identical to those in `Denisovan Allele (Hg38)`.
+- `Chr12 Position (Hg38)`: Genomic coordinate with respect to the hg38 reference assembly.
+- `Ref. Allele (Hg38)`: Reference allele with respect to the hg38 reference assembly.
+	- Note that these alleles are identical to those in `Ref. Allele (Hg19)`.
+- `Denisovan Allele (Hg38)`: Denisovan allele with respect to the hg38 reference assembly.
+	- Note that these alleles are always alternative with respect to the hg38 reference assembly and identical to those in `Denisovan Allele (Hg19)`.
+- `HG00864 (PAV)`: Phased genotypes called using the Phased Assembly Variant caller (PAV) for the CDX individual (HG00864) from the Human Genome Structural Variation Consortium.
+	- Note that this individual has one *Denisovan-like* haplotype at the 72kb region.
+- `HG03009 (PAV)`: Phased genotypes called using the Phased Assembly Variant caller (PAV) for the BEB individual (HG03009) from the Human Genome Structural Variation Consortium.
+	- Note that this individual has one *Denisovan-like* haplotype at the 72kb region.
+- `NA20847 (PAV)`: Phased genotypes called using the Phased Assembly Variant caller (PAV) for the GIH individual (NA20847) from the Human Genome Structural Variation Consortium.
+	- Note that this individual has one *Denisovan-like* haplotype at the 72kb region.
+- `HG01122 (Clair3)`: Unphased genotypes called using Clair3 for the CLM individual (HG01122) from the 1000 Genomes Project Oxford Nanopore Technologies Sequencing Consortium.
+	- Note that this individual has one *Denisovan-like* haplotype at the 72kb region.
+- `HG01122 (PMDV)`: Unphased genotypes called using PEPPER-Margin-DeepVariant (PMDV) for the CLM individual (HG01122) from the 1000 Genomes Project Oxford Nanopore Technologies Sequencing Consortium.
+- `HG02252 (Clair3)`: Unphased genotypes called using Clair3 for the PEL individual (HG02252) from the 1000 Genomes Project Oxford Nanopore Technologies Sequencing Consortium.
+	- Note that this individual has one *Denisovan-like* haplotype at the 72kb region.
+- `HG02252 (PMDV)`: Unphased genotypes called using PEPPER-Margin-DeepVariant (PMDV) for the PEL individual (HG02252) from the 1000 Genomes Project Oxford Nanopore Technologies Sequencing Consortium.
+	- Note that this individual has one *Denisovan-like* haplotype at the 72kb region.
+- `HG02262 (Clair3)`: Unphased genotypes called using Clair3 for the PEL individual (HG02262) from the 1000 Genomes Project Oxford Nanopore Technologies Sequencing Consortium.
+	- Note that this individual has two *Denisovan-like* haplotypes at the 72kb region.
+- `HG02262 (PMDV)`: Unphased genotypes called using PEPPER-Margin-DeepVariant (PMDV) for the PEL individual (HG02262) from the 1000 Genomes Project Oxford Nanopore Technologies Sequencing Consortium.
+	- Note that this individual has two *Denisovan-like* haplotypes at the 72kb region.
+
+
+
+
+
+
+
+
+
+
+
+

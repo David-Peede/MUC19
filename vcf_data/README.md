@@ -26,7 +26,7 @@ All data is publicly available and can be downloaded from the following location
 
 ## Code
 
-Note that because the intermediate VCF and bookkeeping files take up roughly 3TB of storage.
+Note that the intermediate VCF and bookkeeping files take up roughly 3TB of storage.
 
 ### Single Archaic Datasets
 
@@ -57,7 +57,7 @@ done; done
 __Filter each archaic excluding the ancestral allele.__
 ```bash
 for CHR in {1..22}; do for ARC in alt cha vin den; do
-python filter_archaic_no_aa_call.py ./arcs/${ARC}_masked_chr${CHR}.vcf.gz ${CHR} ${ARC}_masked | bgzip > ./filtered_merge/${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
+python filter_archaic_no_aa_call_v_revisions.py ./arcs/${ARC}_masked_chr${CHR}.vcf.gz ${CHR} ${ARC}_masked | bgzip > ./filtered_merge/${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
 done; done
 ```
 
@@ -65,7 +65,7 @@ done; done
 __Convert the filtered VCF files to `Zarr` arrays.__
 ```bash
 for CHR in {1..22}; do for ARC in alt cha vin den; do
-python vcf_to_zarr.py ./filtered_merge/${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz ${ARC}_masked_no_aa_chr${CHR} ${CHR}
+python vcf_to_zarr_v_revisions.py ./filtered_merge/${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz ${ARC}_masked_no_aa_chr${CHR} ${CHR}
 done; done
 ```
 
@@ -83,7 +83,7 @@ done
 __Identify duplicate records.__
 ```bash
 for CHR in {1..22}; do
-python identify_duplicate_records.py ./init_merge/all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} all_archaics_masked | bgzip > ./dups/all_archaics_masked_dup_records_chr${CHR}.vcf.gz
+python identify_duplicate_records_v_revisions.py ./init_merge/all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} all_archaics_masked | bgzip > ./dups/all_archaics_masked_dup_records_chr${CHR}.vcf.gz
 done
 ```
 
@@ -91,7 +91,7 @@ done
 __Filter the dataset excluding the ancestral allele.__
 ```bash
 for CHR in {1..22}; do
-python all_archaics_init_merge_filter_no_aa_call.py ./init_merge/all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} all_archaics_masked | bgzip > ./filtered_merge/all_archaics_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
+python all_archaics_init_merge_filter_no_aa_call_v_revisions.py ./init_merge/all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} all_archaics_masked | bgzip > ./filtered_merge/all_archaics_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
 done
 ```
 
@@ -99,7 +99,7 @@ done
 __Filter the dataset including the ancestral allele.__
 ```bash
 for CHR in {1..22}; do
-python all_archaics_init_merge_filter_aa_call.py ./init_merge/all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} all_archaics_masked | bgzip > ./filtered_merge/all_archaics_masked_var_sites_aa_calls_chr${CHR}.vcf.gz
+python all_archaics_init_merge_filter_aa_call_v_revisions.py ./init_merge/all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} all_archaics_masked | bgzip > ./filtered_merge/all_archaics_masked_var_sites_aa_calls_chr${CHR}.vcf.gz
 done
 ```
 
@@ -107,8 +107,8 @@ done
 __Convert the filtered VCF files to `Zarr` arrays.__
 ```bash
 for CHR in {1..22}; do
-python vcf_to_zarr.py ./filtered_merge/all_archaics_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz arcs_masked_no_aa_chr${CHR} ${CHR}
-python vcf_to_zarr.py ./filtered_merge/all_archaics_masked_var_sites_aa_calls_chr${CHR}.vcf.gz arcs_masked_aa_chr${CHR} ${CHR}
+python vcf_to_zarr_v_revisions.py ./filtered_merge/all_archaics_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz arcs_masked_no_aa_chr${CHR} ${CHR}
+python vcf_to_zarr_v_revisions.py ./filtered_merge/all_archaics_masked_var_sites_aa_calls_chr${CHR}.vcf.gz arcs_masked_aa_chr${CHR} ${CHR}
 done
 ```
 
@@ -117,20 +117,17 @@ done
 __Identify duplicate records.__
 ```bash
 TGP=./tgp
-SGDP=./sgdp
 
 for CHR in {1..22}; do
-python identify_duplicate_records.py ${TGP}/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz ${CHR} tgp | bgzip > ./dups/tgp_dup_records_chr${CHR}.vcf.gz
-python identify_duplicate_records.py ${SGDP}/sgdp.phased.unfiltered.chr${CHR}.vcf.gz ${CHR} sgdp | bgzip > ./dups/sgdp_dup_records_chr${CHR}.vcf.gz
+python identify_duplicate_records_v_revisions.py ${TGP}/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz ${CHR} tgp | bgzip > ./dups/tgp_dup_records_chr${CHR}.vcf.gz
 done
 ```
 
 
-__Filter each dataset excluding the ancestral allele.__
+__Filter the TGP dataset excluding the ancestral allele.__
 ```bash
 for CHR in {1..22}; do
-python tgp_sgdp_init_merge_filter_no_aa_call.py ${TGP}/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz ${CHR} tgp | bgzip > ./filtered_merge/tgp_var_sites_no_aa_calls_chr${CHR}.vcf.gz
-python tgp_sgdp_init_merge_filter_no_aa_call.py ${SGDP}/sgdp.phased.unfiltered.chr${CHR}.vcf.gz ${CHR} sgdp | bgzip > ./filtered_merge/sgdp_var_sites_no_aa_calls_chr${CHR}.vcf.gz
+python tgp_sgdp_init_merge_filter_no_aa_call_v_revisions.py ${TGP}/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz ${CHR} tgp | bgzip > ./filtered_merge/tgp_var_sites_no_aa_calls_chr${CHR}.vcf.gz
 done
 ```
 
@@ -138,7 +135,7 @@ done
 __Filter the TGP dataset including the ancestral allele.__
 ```bash
 for CHR in {1..22}; do
-python tgp_sgdp_init_merge_filter_aa_call.py ${TGP}/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz ${CHR} tgp | bgzip > ./filtered_merge/tgp_var_sites_aa_calls_chr${CHR}.vcf.gz
+python tgp_sgdp_init_merge_filter_aa_call_v_revisions.py ${TGP}/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz ${CHR} tgp | bgzip > ./filtered_merge/tgp_var_sites_aa_calls_chr${CHR}.vcf.gz
 done
 ```
 
@@ -163,9 +160,8 @@ done
 __Convert the filtered VCF files to `Zarr` arrays.__
 ```bash
 for CHR in {1..22}; do
-python vcf_to_zarr.py ./filtered_merge/tgp_mod_var_sites_no_aa_calls_chr${CHR}.vcf.gz tgp_mod_no_aa_chr${CHR} ${CHR}
+python vcf_to_zarr_v_revisions.py ./filtered_merge/tgp_mod_var_sites_no_aa_calls_chr${CHR}.vcf.gz tgp_mod_no_aa_chr${CHR} ${CHR}
 python vcf_to_zarr.py ./filtered_merge/tgp_mod_var_sites_aa_calls_chr${CHR}.vcf.gz tgp_mod_aa_chr${CHR} ${CHR}
-python vcf_to_zarr.py ./filtered_merge/sgdp_var_sites_no_aa_calls_chr${CHR}.vcf.gz sgdp_no_aa_chr${CHR} ${CHR}
 done
 ```
 
@@ -187,8 +183,8 @@ done; done
 **‌Identify duplicate records.**
 ```bash
 for CHR in {1..22}; do for ARC in alt cha vin den; do
-python identify_duplicate_records.py ./init_merge/tgp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_${ARC}_masked | bgzip > ./dups/tgp_${ARC}_masked_dup_records_chr${CHR}.vcf.gz
-python identify_duplicate_records.py ./init_merge/sgdp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} sgdp_${ARC}_masked | bgzip > ./dups/sgdp_${ARC}_masked_dup_records_chr${CHR}.vcf.gz
+python identify_duplicate_records_v_revisions.py ./init_merge/tgp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_${ARC}_masked | bgzip > ./dups/tgp_${ARC}_masked_dup_records_chr${CHR}.vcf.gz
+python identify_duplicate_records_v_revisions.py ./init_merge/sgdp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} sgdp_${ARC}_masked | bgzip > ./dups/sgdp_${ARC}_masked_dup_records_chr${CHR}.vcf.gz
 done; done
 ```
 
@@ -196,8 +192,8 @@ done; done
 **‌Filter each dataset excluding the ancestral allele.**
 ```bash
 for CHR in {1..22}; do for ARC in alt cha vin den; do
-python tgp_sgdp_single_archaic_init_merge_filter_no_aa_call.py ./init_merge/tgp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_${ARC}_masked | bgzip > ./filtered_merge/tgp_${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
-python tgp_sgdp_single_archaic_init_merge_filter_no_aa_call.py ./init_merge/sgdp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} sgdp_${ARC}_masked | bgzip > ./filtered_merge/sgdp_${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
+python tgp_sgdp_single_archaic_init_merge_filter_no_aa_call_v_revisions.py ./init_merge/tgp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_${ARC}_masked | bgzip > ./filtered_merge/tgp_${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
+python tgp_sgdp_single_archaic_init_merge_filter_no_aa_call_v_revisions.py ./init_merge/sgdp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} sgdp_${ARC}_masked | bgzip > ./filtered_merge/sgdp_${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
 done; done
 ```
 
@@ -205,7 +201,7 @@ done; done
 __Filter each combined TGP dataset including the ancestral allele.__
 ```bash
 for CHR in {1..22}; do for ARC in alt cha vin den; do
-python tgp_sgdp_single_archaic_init_merge_filter_aa_call.py ./init_merge/tgp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_${ARC}_masked | bgzip > ./filtered_merge/tgp_${ARC}_masked_var_sites_aa_calls_chr${CHR}.vcf.gz
+python tgp_sgdp_single_archaic_init_merge_filter_aa_call_v_revisions.py ./init_merge/tgp_${ARC}_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_${ARC}_masked | bgzip > ./filtered_merge/tgp_${ARC}_masked_var_sites_aa_calls_chr${CHR}.vcf.gz
 done; done
 ```
 
@@ -230,9 +226,9 @@ done; done
 __Convert the filtered VCF files to `Zarr` arrays.__
 ```bash
 for CHR in {1..22}; do for ARC in alt cha vin den; do
-python vcf_to_zarr.py ./filtered_merge/tgp_mod_${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz tgp_${ARC}_masked_no_aa_chr${CHR} ${CHR}
+python vcf_to_zarr_v_revisions.py ./filtered_merge/tgp_mod_${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz tgp_${ARC}_masked_no_aa_chr${CHR} ${CHR}
 python vcf_to_zarr.py ./filtered_merge/tgp_mod_${ARC}_masked_var_sites_aa_calls_chr${CHR}.vcf.gz tgp_${ARC}_masked_aa_chr${CHR} ${CHR}
-python vcf_to_zarr.py ./filtered_merge/sgdp_${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz sgdp_${ARC}_masked_no_aa_chr${CHR} ${CHR}
+python vcf_to_zarr_v_revisions.py ./filtered_merge/sgdp_${ARC}_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz sgdp_${ARC}_masked_no_aa_chr${CHR} ${CHR}
 done; done
 ```
 
@@ -252,7 +248,7 @@ done
 **‌Identify duplicate records.**
 ```bash
 for CHR in {1..22}; do
-python identify_duplicate_records.py ./init_merge/tgp_all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_all_archaics_masked | bgzip > ./dups/tgp_all_archaics_masked_dup_records_chr${CHR}.vcf.gz
+python identify_duplicate_records_v_revisions.py ./init_merge/tgp_all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_all_archaics_masked | bgzip > ./dups/tgp_all_archaics_masked_dup_records_chr${CHR}.vcf.gz
 done
 ```
 
@@ -260,7 +256,7 @@ done
 **‌Filter each dataset excluding the ancestral allele.**
 ```bash
 for CHR in {1..22}; do
-python tgp_sgdp_all_archaics_init_merge_filter_no_aa_call.py ./init_merge/tgp_all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_all_archaics_masked | bgzip > ./filtered_merge/tgp_all_archaics_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
+python tgp_sgdp_all_archaics_init_merge_filter_no_aa_call_v_revisions.py ./init_merge/tgp_all_archaics_masked_init_merge_chr${CHR}.vcf.gz ${CHR} tgp_all_archaics_masked | bgzip > ./filtered_merge/tgp_all_archaics_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz
 done
 ```
 
@@ -303,17 +299,15 @@ done
 
 **Annotate the VCF files.**
 ```bash
-for CHR in {1..22}; do
-java -Xmx8g -jar ./snpEff/snpEff.jar ann -csvStats ./ann_summary/tgp_arcs_masked_no_aa_chr${CHR} -onlyTr ../annotations/hg19_genes/ncbi_refseq_transcripts.txt GRCh37.p13 ./filtered_merge/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_chr${CHR}.vcf.gz | bgzip > ./filtered_merge_ann/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_all_annotations_chr${CHR}.vcf.gz
-done
+java -Xmx8g -jar ./snpEff/snpEff.jar ann -csvStats ./ann_summary/tgp_arcs_masked_no_aa_chr${CHR} -onlyTr ../annotations/hg19_genes/ncbi_refseq_transcripts.txt GRCh37.p13 ./filtered_merge/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_chr12.vcf.gz | bgzip > ./filtered_merge_ann/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_all_annotations_chr12.vcf.gz
 ```
 
 
 **Extract the coding information.**
 ```bash
-for CHR in {1..22}; do for SUFFIX in syn non; do
-python subset_filtered_annotated_vcf_by_annotation.py ${CHR} tgp_mod_all_archaics_masked_var_sites_no_aa_calls ${SUFFIX} | bgzip > ./filtered_merge_ann/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_${SUFFIX}_muts_chr${CHR}.vcf.gz
-done; done
+for SUFFIX in syn non; do
+python subset_filtered_annotated_vcf_by_annotation_v_revisions.py 12 tgp_mod_all_archaics_masked_var_sites_no_aa_calls ${SUFFIX} | bgzip > ./filtered_merge_ann/tgp_mod_all_archaics_masked_var_sites_no_aa_calls_${SUFFIX}_muts_chr12.vcf.gz
+done
 ```
 
 
@@ -379,6 +373,6 @@ done
 __Convert the phased late Neanderthal VCF files to `Zarr` arrays.__
 ```bash
 for DATA in cha vin; do
-python vcf_to_zarr.py ./phasing/${DATA}_phased_ref_panel_all_inds.vcf.gz ${DATA}_phased_ref_panel_all_inds 12
+python vcf_to_zarr_v_revisions.py ./phasing/${DATA}_phased_ref_panel_all_inds.vcf.gz ${DATA}_phased_ref_panel_all_inds 12
 done
 ```

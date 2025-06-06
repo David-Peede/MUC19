@@ -10,6 +10,12 @@ All packages are publicly available and their documentation can be viewed at the
 - [`pandas v1.4.2`](https://pandas.pydata.org/docs/)
 - [`scikit-allel v1.3.5`](https://scikit-allel.readthedocs.io/en/stable/index.html)
 
+## Data
+
+The data is publicly available and can be downloaded from the following location:
+
+- [SPrime Introgression Tracts](https://data.mendeley.com/datasets/y7hyt83vxr/1)
+
 ## Code
 
 __Compute PBS for MXL:CHB:CEU partitioned by ancestry per non-overlapping window.__
