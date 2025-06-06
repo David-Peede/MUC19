@@ -14,7 +14,7 @@ All packages are publicly available and their documentation can be viewed at the
 
 ## Code
 
-__Run the code necessary to generate any other input files, which can be found in the `README.md` of each directory.__
+__Run the code necessary to generate the input files, which can be found in the `README.md` of each data generation directory.__
 
 - Supplemental tables can be viewed in the `supp_tables` directory.
 - All results from the notebooks above can be found in the `dataframes` directory.

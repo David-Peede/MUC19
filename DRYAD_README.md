@@ -51,6 +51,41 @@ Each admixed American individual (`{amr_ind}`) has two corresponding BED files, 
 	- The BED files for the intersecting region of interest can be found [here](https://github.com/David-Peede/MUC19/tree/main/amr_lai/region_beds).
 - Column 10: Number of base pairs of overlap with respect to the intersecting region of interest.
 
+### `annotations`
+
+#### `annotations.tar.gz` 
+`annotations.tar.gz` contains the output from `data_processing_v_revisions.ipynb` found [here](https://github.com/David-Peede/MUC19/blob/main/analyses_nbs/data_processing_v_revisions.ipynb) and the outputs from `consolidate_tgp_single_archaic_genes_v_revisions.py`, which can be found [here](https://github.com/David-Peede/MUC19/tree/main/annotations).
+
+**Paths**
+- `annotations.tar.gz` 
+	- `./muc19/annotations/hg19_genes/ncbi_refseq_genes_chr{1..22}.csv.gz`
+	- `./muc19/annotations/hg19_genes/ncbi_refseq_transcripts.txt`
+	- `./muc19/annotations/tgp_den_masked_no_aa/ncbi_refseq_{invariant,variant}_genes.csv.gz`
+
+##### `ncbi_refseq_genes_chr{1..22}.csv.gz`
+One file per autosome (`{1..22}`) containing the NCBI RefSeq Select gene coordinates with the following columns:
+- `GENE_ID`: NCBI RefSeq Select gene ID.
+- `TRANSCRIPT_ID`: NCBI RefSeq Select transcript ID.
+- `START`: Start position (inclusive).
+- `STOP`: Stop position (inclusive).
+
+##### `ncbi_refseq_transcripts.txt`
+One file with a single column listing all of the autosomal NCBI RefSeq Select transcript IDs used for the `SnpEff` annotations.
+
+##### `ncbi_refseq_{invariant,variant}_genes.csv.gz`
+One file for invariant (`_invariant_`) and one for variant (`_variant_`) NCBI RefSeq Select genes, with the following columns:
+- `IDX`: Gene index with respect to the `CHR` column.
+- `GENE_ID`: NCBI RefSeq Select gene ID.
+- `TRANSCRIPT_ID`: NCBI RefSeq Select transcript ID.
+- `CHR`: Chromosome.
+- `START`: Start position (inclusive).
+- `STOP`: Stop position (inclusive).
+- `DEN`: Effective sequence length with respect to the Altai Denisovan.
+- `S`: Number of segregating sites.
+- `QC`: QC condition (numeric, e.g., 1 if true, 0 if false).
+
+**Note**: If only column headers are present in the invariant file (`_invariant_`), no invariant windows passed initial QC.
+
 ### `arc_snp_density`
 
 #### `classify_tgp_snps_chromosome.tar.gz`
@@ -533,15 +568,17 @@ For each late Neanderthal (`{cha,vin}`), there is one corresponding file per aut
 For each autosome (`chr{1..22}`), there is one corresponding file. This file contains one row, where each column corresponds to the average number of pairwise differences between all African chromosomes in the 1000 Genomes Project and the Altai Denisovan's two chromosomes per non-overlapping 72kb window.
 
 ### `vcf_data`
-Since all of the VCF files and bookkeeping information are well over 3TB, we provide the converted Zarr arrays, which are the output of `vcf_to_zarr.py` found [here](https://github.com/David-Peede/MUC19/tree/main/vcf_data). Additionally, in the following `windowing` subsubsection, we provide the corresponding bookkeeping files used in our analyses. The `{prefix}.tar.gz` files are named by the dataset (`{prefix}`) and, unless otherwise noted, contain the corresponding Zarr arrays for all autosomes (`chr{1..22}`).
+Since ALL of the VCF files and bookkeeping information are well over 3TB, we provide the converted Zarr arrays, which are the output of `vcf_to_zarr_v_revisions.py` found [here](https://github.com/David-Peede/MUC19/tree/main/vcf_data), as 99.99% of analyses are performed using these data. We also include the final filtered variant VCF files used to generate these Zarr arrays. Additionally, in the following `windowing` subsubsection, we provide the corresponding bookkeeping files used in our analyses and include the raw bookkeeping files for the sake of completeness, which are located in `bookkeeping.tar.gz`. Note that all VCF files are formatted in accordance with the [VCF specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf), and the format of the raw bookkeeping files is described in the VCF processing scripts found [here](https://github.com/David-Peede/MUC19/tree/main/vcf_data). The `{prefix}.tar.gz` files are named by the dataset (`{prefix}`) and, unless otherwise noted, contain the corresponding Zarr arrays for all autosomes (`chr{1..22}`).
 
 **Datasets & Paths**
 - `arcs_masked_no_aa.tar.gz`
 	- All archaic individuals without ancestral allele calls. Individuals are in the following order: Altai Neanderthal, Chagyrskaya Neanderthal, Vindija Neanderthal, Altai Denisovan.
 	- `./muc19/zarr_data/arcs_masked_no_aa_chr{1..22}.zarr`
+	- Input VCF files: `all_arcs_filtered_merge.tar.gz`.
 - `arcs_masked_aa.tar.gz`
 	- All archaic individuals with ancestral allele calls. Individuals are in the following order: Altai Neanderthal, Chagyrskaya Neanderthal, Vindija Neanderthal, Altai Denisovan, and a placeholder individual "Ancestor" who is always homozygous for the ancestral allele.
 	- `./muc19/zarr_data/arcs_masked_no_aa_chr{1..22}.zarr`
+	- Input VCF files: `all_arcs_filtered_merge.tar.gz`.
 - `{den,alt,cha,vin}_masked_no_aa.tar.gz`
 	- `{den}`: Altai Denisovan without ancestral allele calls.
 		- `./muc19/zarr_data/den_masked_no_aa_chr{1..22}.zarr`
@@ -551,9 +588,11 @@ Since all of the VCF files and bookkeeping information are well over 3TB, we pro
 		- `./muc19/zarr_data/cha_masked_no_aa_chr{1..22}.zarr`
 	- `{vin}`: Vindija Neanderthal without ancestral allele calls.
 		- `./muc19/zarr_data/vin_masked_no_aa_chr{1..22}.zarr`
+	- Input VCF files: `single_arc_filtered_merge.tar.gz`.
 - `tgp_arcs_masked_no_aa.tar.gz`
 	- 1000 Genomes Project and all archaic individuals without ancestral allele calls. Individuals are in the following order: 1000 Genomes Project individuals (order as in [`./muc19/meta_data/tgp_mod.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data)), Altai Neanderthal, Chagyrskaya Neanderthal, Vindija Neanderthal, Altai Denisovan.
 	- `./muc19/zarr_data/tgp_arcs_masked_no_aa_chr{1..22}.zarr`
+	- Input VCF files: `tgp_sgdp_all_arcs_filtered_merge.tar.gz`.
 - `tgp_{den,alt,cha,vin}_masked_no_aa.tar.gz`
 	- `{den}`: 1000 Genomes Project (order as in [`./muc19/meta_data/tgp_mod.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data)) and the Altai Denisovan, without ancestral allele calls.
 		- `./muc19/zarr_data/tgp_den_masked_no_aa_chr{1..22}.zarr`
@@ -563,6 +602,7 @@ Since all of the VCF files and bookkeeping information are well over 3TB, we pro
 		- `./muc19/zarr_data/tgp_cha_masked_no_aa_chr{1..22}.zarr`
 	- `{vin}`: 1000 Genomes Project (order as in [`./muc19/meta_data/tgp_mod.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data)) and the Vindija Neanderthal, without ancestral allele calls.
 		- `./muc19/zarr_data/tgp_vin_masked_no_aa_chr{1..22}.zarr`
+	- Input VCF files: `tgp_single_arc_filtered_merge.tar.gz`.
 - `tgp_{den,alt,cha,vin}_masked_aa.tar.gz`
 	- `{den}`: 1000 Genomes Project (order as in [`./muc19/meta_data/tgp_mod.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data)), the Altai Denisovan, and a placeholder individual "Ancestor" who is always homozygous for the ancestral allele.
 		- `./muc19/zarr_data/tgp_den_masked_aa_chr{1..22}.zarr`
@@ -572,9 +612,11 @@ Since all of the VCF files and bookkeeping information are well over 3TB, we pro
 		- `./muc19/zarr_data/tgp_cha_masked_aa_chr{1..22}.zarr`
 	- `{vin}`: 1000 Genomes Project (order as in [`./muc19/meta_data/tgp_mod.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data)), the Vindija Neanderthal, and a placeholder individual "Ancestor" who is always homozygous for the ancestral allele.
 		- `./muc19/zarr_data/tgp_vin_masked_aa_chr{1..22}.zarr`
+	- Input VCF files: `tgp_single_arc_filtered_merge.tar.gz`.
 - `sgdp_arcs_masked_no_aa.tar.gz`
 	- Simon's Genome Diversity Project and all archaic individuals without ancestral allele calls. Individuals are in the following order: Simon's Genome Diversity Project individuals (order as in [`./muc19/meta_data/sgdp.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data)), Altai Neanderthal, Chagyrskaya Neanderthal, Vindija Neanderthal, Altai Denisovan.
 	- `./muc19/zarr_data/sgdp_arcs_masked_no_aa_chr{1..22}.zarr`
+	- Input VCF files: `tgp_sgdp_all_arcs_filtered_merge.tar.gz`.
 - `sgdp_{den,alt,cha,vin}_masked_no_aa.tar.gz`
 	- `{den}`: Simon's Genome Diversity Project (order as in [`./muc19/meta_data/sgdp.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data)) and the Altai Denisovan, without ancestral allele calls.
 		- `./muc19/zarr_data/sgdp_den_masked_no_aa_chr{1..22}.zarr`
@@ -584,20 +626,25 @@ Since all of the VCF files and bookkeeping information are well over 3TB, we pro
 		- `./muc19/zarr_data/sgdp_cha_masked_no_aa_chr{1..22}.zarr`
 	- `{vin}`: Simon's Genome Diversity Project (order as in [`./muc19/meta_data/sgdp.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data)) and the Vindija Neanderthal, without ancestral allele calls.
 		- `./muc19/zarr_data/sgdp_vin_masked_no_aa_chr{1..22}.zarr`
+	- Input VCF files: `sgdp_single_arc_filtered_merge.tar.gz`.
 - `tgp_mod_no_aa.tar.gz`
 	- 1000 Genomes Project without ancestral allele calls. Individuals are in the same order as they appear in [`./muc19/meta_data/tgp_mod.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data).
 	- `./muc19/zarr_data/tgp_mod_no_aa_chr{1..22}.zarr`
+	- Input VCF files: `tgp_mod_filtered_merge.tar.gz`.
 - `tgp_mod_aa.tar.gz`
 	- 1000 Genomes Project with ancestral allele calls. Individuals are in the same order as they appear in [`./muc19/meta_data/tgp_mod.txt`](https://github.com/David-Peede/MUC19/tree/main/meta_data), and a placeholder individual "Ancestor" who is always homozygous for the ancestral allele.
 	- `./muc19/zarr_data/tgp_mod_aa_chr{1..22}.zarr`
+	- Input VCF files: `tgp_mod_filtered_merge.tar.gz`.
 - `cha_phased_ref_panel_all_inds.tar.gz`
 	- Corresponding output from `BEAGLE` before read-based phasing for the focal 72kb region, without ancestral allele calls. Individuals are in the following order: Altai Neanderthal, Chagyrskaya Neanderthal, Altai Denisovan.
 	- `./muc19/zarr_data/cha_phased_ref_panel_all_inds.zarr`
 		- Note that this is a single Zarr array for the focal 72kb region.
+	- The input VCF file can be found [here](https://github.com/David-Peede/MUC19/tree/main/vcf_data/phasing).
 - `vin_phased_ref_panel_all_inds.tar.gz`
 	- Corresponding output from `BEAGLE` before read-based phasing for the focal 72kb region, without ancestral allele calls. Individuals are in the following order: Altai Neanderthal, Vindija Neanderthal, Altai Denisovan.
 	- `./muc19/zarr_data/vin_phased_ref_panel_all_inds.zarr`
 		- Note that this is a single Zarr array for the focal 72kb region.
+	- The input VCF file can be found [here](https://github.com/David-Peede/MUC19/tree/main/vcf_data/phasing).
 
 ### `windowing`
 
