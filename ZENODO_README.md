@@ -1,6 +1,6 @@
 # Zenodo Data
 
-**Citation:** Please cite [Villanea and Peede et al. 2024](https://doi.org/10.1101/2023.09.25.559202) (doi: https://doi.org/10.1101/2023.09.25.559202) when using this data.
+**Citation:** Please cite [Villanea and Peede et al. 2025](https://doi.org/10.1126/science.adl0882) (https://doi.org/10.1126/science.adl0882) when using this data.
 
 Note that for the archived datasets you will first need to extract the individual data archives (`.tar.gz`). For example, run `tar -xf {data_archive}.tar.gz`.
 

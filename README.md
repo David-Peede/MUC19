@@ -1,6 +1,6 @@
 # The *MUC19* Gene: An Evolutionary History of Recurrent Introgression and Natural Selection
 
-Code associated with Villanea and Peede et. al. 202X.
+Code associated with [Villanea and Peede et al. (2025)](https://doi.org/10.1126/science.adl0882) (https://doi.org/10.1126/science.adl0882).
 
 ## Directory Overview
 
@@ -62,4 +62,4 @@ Code associated with Villanea and Peede et. al. 202X.
 
 ### Notes
 
-This repository contains all code, meta information, and final results. Key datasets of interest have been uploaded to Zenodo (see `./ZENODO_README.md`). All of the intermediary data used to generate the final set of results in `./analyses_nbs/dataframes` have been uploaded to DRYAD (see `./DRYAD_README.md`). As this code is associated with a manuscript that is currently going through the peer-review process, and due to the fact that GitHub only stores up to 100Mb per repository, some directories are compressed using `.tar.gz` or `.zip`. To extract the files from those directories, you will need to run either `tar -xf target_directory.tar.gz` or `unzip target_directory.zip`.
+This repository contains all code, meta information, and final results. Key datasets of interest have been uploaded to Zenodo (see `./ZENODO_README.md`). All of the intermediary data used to generate the final set of results in `./analyses_nbs/dataframes` have been uploaded to DRYAD (see `./DRYAD_README.md`). Due to the fact that GitHub only stores up to 100Mb per repository, some directories are compressed using `.tar.gz` or `.zip`. To extract the files from those directories, you will need to run either `tar -xf target_directory.tar.gz` or `unzip target_directory.zip`.
